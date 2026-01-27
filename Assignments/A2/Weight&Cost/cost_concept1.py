@@ -50,7 +50,7 @@ Q_proto = 5       # number of prototypes
 F_cert  = 1.00
 F_comp  = 2.00
 F_taper = 0.95
-F_cf    = 1.03
+F_cf    = 1.00
 F_press = 1.03
 F_hye   = 1.00
 
