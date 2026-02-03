@@ -1,7 +1,7 @@
 ISO-10303-21;
 HEADER;
 FILE_DESCRIPTION((''),'1');
-FILE_NAME('outfile.stp','2026-01-23T19:52:14',(''),(''),'','','');
+FILE_NAME('outfile.stp','2026-01-26T18:47:10',(''),(''),'','','');
 FILE_SCHEMA(('CONFIG_CONTROL_DESIGN'));
 ENDSEC;
 DATA;
