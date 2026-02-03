@@ -24,8 +24,8 @@ k = 1/(np.pi * e * AR) #drag polar constant, see 07-PreliminarySizing_Part3.pdf 
 #endregion
 
 #region stall
-Vstall_L = 195 #ft/s (115 KIAS), stall speed for cruise (based on F/A-18E/F)
-Vstall_C = 220 #ft/s (130 KIAS), stall speed for landing (based on F/A-18E/F)
+Vstall_L = 195 #ft/s (115 KIAS), stall speed for landing (based on F/A-18E/F)
+Vstall_C = 210 #ft/s (130 KIAS), stall speed for cruise (based on F/A-18E/F)
 Vstall_T = 205 #ft/s (120 KIAS), stall speed for takeoff (based on F/A-18E/F)
 rho_30k = 8.91E-4 #slugs/ft^3, atmospheric density at 30k ft
 rho_20k = 12.66E-4 #slugs/ft^3, atmospheric density at 20k ft
@@ -36,10 +36,10 @@ CLmax_T = 1.7 #CLmax at takeoff
 
 def stall(V, CL, rho):
     FoS = 1.25 #stall factor of safety
-    WS = FoS * (rho * CL * V**2)/2
+    WS = (rho * CL * V**2)/2
     return WS
 stallWS_L = stall(Vstall_L, CLmax_L, rho_SL) #wing loading constraint for stall on landing
-stallWS_C = stall(Vstall_C, CLmax_C, rho_30k) #wing loading constraint for stall on cruise
+#stallWS_C = stall(Vstall_C, CLmax_C, rho_30k) #wing loading constraint for stall on cruise (&note: ask if this must be incl.)
 stallWS_T = stall(Vstall_T, CLmax_T, rho_SL) #wing loading constraint for stall on takeoff
 #endregion
 
@@ -70,20 +70,20 @@ climbTW = climb(k, C_D0, CLmax_T)
 M_cruiseidl = 2.0
 M_cruise_tar = 1.6
 Wf_Wi_cruise = 0.7706 #Cruise/Takeoff weight fraction, from A2 sizing code
-Tcr_Tto = 22/13 #Cruise/Takeoff thrust fraction, from the GE F414 engine deck (note: refine value for A3)
+Tcr_Tto = 22/13 #Cruise/Takeoff thrust fraction, from the GE F414 engine deck (&note: refine value for A3)
 def cruise(Cd0, k, WS, M, rho):
-
-    Vcruise = M * 996 #996 ft/s is speed of sound at 30kft from NASA standard atmosphere tables
+    a30k = 996 #996 ft/s is speed of sound at 30kft from NASA standard atmosphere tables
+    Vcruise = M * a30k #Mach * speed of sound
     qcr = 1/2 * rho * Vcruise**2 #lbf/ft^2, dynamic pressure at cruise velocity
     WS_cruise = WS * Wf_Wi_cruise #wing loading at cruise, as opposed to takeoff
     TW = Wf_Wi_cruise/Tcr_Tto * ( (qcr * Cd0)/(WS_cruise) + k/qcr * (WS_cruise) ) #thrust loading at takeoff as a function of wing loading at cruise -> wing loading at takeoff
     return TW
-TW_cruiseMa2 = cruise(C_D0, k, wingload, M_cruiseidl, rho_30k)
-TW_cruiseMa1p6 = cruise(C_D0, k, wingload, M_cruise_tar, rho_30k)
+cruiseTWMa2 = cruise(C_D0, k, wingload, M_cruiseidl, rho_30k)
+cruiseTWMa1p6 = cruise(C_D0, k, wingload, M_cruise_tar, rho_30k)
 #endregion
 
 #region ceiling
-ceilingTW = 2 * np.sqrt(k * C_D0)
+ceilingTW = (Wf_Wi_cruise/Tcr_Tto) * 2 * np.sqrt(k * C_D0)
 #endregion
 
 #region maneuver
@@ -106,9 +106,43 @@ maneuverTW_MAX_tar = maneuver(C_D0, k, n_tar, rho_20k, V_BTR, wingload)
 maneuverTW_BTR_idl = maneuver(C_D0, k, n_BTR_idl, rho_20k, V_BTR, wingload)
 maneuverTW_MAX_idl = maneuver(C_D0, k, n_idl, rho_20k, V_BTR, wingload)
 
-print(n_BTR_idl)
+#region plotting
 
-    
+plt.figure(figsize=(10, 7))
+
+# ---- Vertical constraints (W/S limits) ----
+plt.axvline(stallWS_L, color='red', linestyle='--', label='Stall (Landing)')
+plt.axvline(stallWS_T, color='orange', linestyle='--', label='Stall (Takeoff)')
+plt.axvline(stallWS_C, color='brown', linestyle='--', label='Stall (Cruise)')
+plt.axvline(takeoffWS, color='purple', linestyle='--', label='Carrier Takeoff')
+
+# ---- Horizontal constraints (T/W limits) ----
+plt.axhline(climbTW, color='green', linestyle='--', label='Climb')
+plt.axhline(ceilingTW, color='darkgreen', linestyle='--', label='Ceiling')
+
+# ---- Curved constraints ----
+plt.plot(wingload, cruiseTWMa2, label='Cruise M2.0', linewidth=2)
+plt.plot(wingload, cruiseTWMa1p6, label='Cruise M1.6', linewidth=2)
+
+plt.plot(wingload, maneuverTW_BTR_tar, label='Maneuver BTR (Target)', linestyle='-.')
+plt.plot(wingload, maneuverTW_MAX_tar, label='Maneuver Max n (Target)', linestyle=':')
+
+plt.plot(wingload, maneuverTW_BTR_idl, label='Maneuver BTR (Ideal)', linestyle='-.')
+plt.plot(wingload, maneuverTW_MAX_idl, label='Maneuver Max n (Ideal)', linestyle=':')
+
+# ---- Formatting ----
+plt.xlim(0, 200)
+plt.ylim(0, 2.5)
+plt.xlabel('Wing Loading W/S (lbf/ft²)')
+plt.ylabel('Thrust-to-Weight Ratio T/W')
+plt.title('Aircraft Constraint Diagram')
+plt.grid(True)
+plt.legend(loc='upper left', fontsize=9)
+
+plt.show()
+
+#endregion
+  
 
 
 
