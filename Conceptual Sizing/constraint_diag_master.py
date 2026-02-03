@@ -113,7 +113,7 @@ plt.figure(figsize=(10, 7))
 # ---- Vertical constraints (W/S limits) ----
 plt.axvline(stallWS_L, color='red', linestyle='--', label='Stall (Landing)')
 plt.axvline(stallWS_T, color='orange', linestyle='--', label='Stall (Takeoff)')
-plt.axvline(stallWS_C, color='brown', linestyle='--', label='Stall (Cruise)')
+# plt.axvline(stallWS_C, color='brown', linestyle='--', label='Stall (Cruise)')
 plt.axvline(takeoffWS, color='purple', linestyle='--', label='Carrier Takeoff')
 
 # ---- Horizontal constraints (T/W limits) ----
