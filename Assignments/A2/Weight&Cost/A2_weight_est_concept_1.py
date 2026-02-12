@@ -100,11 +100,6 @@ def iterate_W0(W_payload, W_crew, fuel_frac, W0_guess=80000.0, err=1e-6, max_ite
     for i in range(max_iter):
         We_W0 = A * (W0 ** C)
         denom = 1.0 - fuel_frac - We_W0
-        #if denom <= 0:
-            #raise ValueError(
-                #f"Denominator <= 0. Check fuel fraction or A,C. "
-                #f"We/W0={We_W0:.3f}, Wf/W0={fuel_frac:.3f}"
-            #)
         W0_new = (W_payload + W_crew) / denom
         delta = abs(W0_new - W0) / abs(W0_new)
         W0 = W0_new
