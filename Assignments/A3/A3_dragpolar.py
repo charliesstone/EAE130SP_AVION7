@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
  
 AR = 4.5  # wing aspect ratio OpenVSP
 
-CD0_clean = 0.0190  # Clean CD0 OpenVSP 
+CD0_clean = 0.01755  # Clean CD0 OpenVSP 
 
 #delta CD0 from slides
 dCD0_takeoff_flaps = 0.015   # 0.010–0.020

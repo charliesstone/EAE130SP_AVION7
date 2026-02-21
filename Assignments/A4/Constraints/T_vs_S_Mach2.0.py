@@ -183,7 +183,7 @@ def outer_loop_thrust_for_one_constraint(
 # Plot the resulting T vs S curve from the outer loop convergence
 T_actual_F18 = 17000
 S_actual_F18 = 410
-print(f'Actual T for 777: {T_actual_F18} lbf, Actual S for F18: {S_actual_F18} ft^2')
+print(f'Actual T for F18: {T_actual_F18} lbf, Actual S for F18: {S_actual_F18} ft^2')
 
 S_wing_grid = np.linspace(200, 800, 20)
 #values at 30000 ft of altitude above the sea level.
