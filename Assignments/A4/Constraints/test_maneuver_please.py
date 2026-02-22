@@ -172,17 +172,19 @@ CLmax_T = 1.7
 
 def stall(V, CL, rho):
     WS = (rho * CL * V**2)/2
-    return WS
-stallWS_L = stall(Vstall_L, CLmax_L, rho_SL) #wing loading constraint for stall on landing
-stallWS_C = stall(Vstall_C, CLmax_C, rho_30k) #wing loading constraint for stall on cruise
-stallWS_T = stall(Vstall_T, CLmax_T, rho_SL) #wing loading constraint for stall on takeoff
+    coef_stall = (rho * CL * V**2)/2
+    return WS, coef_stall
+stallWS_L, coef_landstall = stall(Vstall_L, CLmax_L, rho_SL) #wing loading constraint for stall on landing
+stallWS_C, coef_cruisestall = stall(Vstall_C, CLmax_C, rho_30k) #wing loading constraint for stall on cruise
+stallWS_T, coef_takeoffstall = stall(Vstall_T, CLmax_T, rho_SL) #wing loading constraint for stall on takeoff
 #endregion
 
 #region takeoff
 def takeoff(rho, Vwod, Vcat, CLMT):
     WS = (0.5 * rho * (Vwod + Vcat)**2 * CLMT)/1.21
-    return WS
-takeoffWS = takeoff(rho_SL, VWOD, VCAT, CLmax_T) #wing loading constraint for clearing carrier runway on takeoff
+    coef_takeoff = (0.5 * rho * (Vwod + Vcat)**2 * CLMT)/1.21
+    return WS, coef_takeoff
+takeoffWS, coef_takeoff = takeoff(rho_SL, VWOD, VCAT, CLmax_T) #wing loading constraint for clearing carrier runway on takeoff
 
 #endregion
 
@@ -203,7 +205,7 @@ climbTW = climb(k, C_D0, CLmax_T)
 ceilingTW = 2 * np.sqrt(k * C_D0)
 #endregion
 
-#region climb/dash
+#region cruise/dash
 M_cruiseidl = 2.0
 M_cruise_tar = 1.6
 def dash(Cd0, k, WS, M, rho):
@@ -213,9 +215,11 @@ def dash(Cd0, k, WS, M, rho):
     qcr = 1/2 * rho * Vcruise**2 #lbf/ft^2, dynamic pressure at cruise velocity
     WS_cruise = WS * Wf_Wi_cruise #wing loading at cruise, as opposed to takeoff
     TW = Wf_Wi_cruise/Tcr_Tto * ( (qcr * Cd0)/(WS_cruise) + k/qcr * (WS_cruise) ) #thrust loading at takeoff as a function of wing loading at cruise -> wing loading at takeoff
-    return TW
-TW_cruiseMa2 = dash(C_D0, k, wingload, M_cruiseidl, rho_30k)
-TW_cruiseMa1p6 = dash(C_D0, k, wingload, M_cruise_tar, rho_30k)
+    coef_cruise1 = qcr * Cd0
+    coef_cruise2 = k/qcr
+    return TW, coef_cruise1, coef_cruise2
+TW_cruiseMa2, coef_cruise1Ma2, coef_cruise2Ma2 = dash(C_D0, k, wingload, M_cruiseidl, rho_30k)
+TW_cruiseMa1p6, _, _ = dash(C_D0, k, wingload, M_cruise_tar, rho_30k)
 
 #region maneuverability 
 # assume sustained turn at 20kft 
@@ -396,7 +400,7 @@ def calculate_engine_weight(T_0):
     return W_eng
 
 def calculate_empty_weight(S_wing, S_ht, S_vt, S_wet_fuselage, TOGW, T_0 , num_engines):
-    W_wing = S_wing * 9
+    W_wing = 9 * S_wing
     W_ht = S_ht * 4
     W_vt = S_vt * 5.3
     W_fuselage = S_wet_fuselage * 4.8
@@ -438,6 +442,9 @@ def calculate_fuel_weight_fraction(L_D_max, R, E, c, V):
 
     return Wf_W0
 
+#region constraint defs
+
+
 #region weight inner loop def
 def inner_loop_weight(
     TOGW_guess,
@@ -475,7 +482,7 @@ def inner_loop_weight(
     converged = (delta <= err)
     return TOGW_guess, converged, it, np.array(W0_history)
 
-#region inner loop exe
+#region inner loop test
 
 #these values are used as historical reference to give an estimate for the TOGW:
 S_wing_ref_F18EF = 500 #ft^2
@@ -486,9 +493,104 @@ TOGW_guess = 50000 #lbf
 final_TOGW, converged, iterations, W0_history = inner_loop_weight(TOGW_guess, S_wing_ref_F18EF, S_ht, S_vt,  S_wet_fuselage, num_engines, W_pilot, W_payload, T0_ref_F18EF)
 # print(f"Converged Takeoff Gross Weight Estimate: {final_TOGW}")
 
+#region thrust outer loop def
 
+#Wing Area Grid for T S diagram:
+S_wing_grid = list(range(100, 900, 2))
 
+def outer_loop_thrust_for_cruise(
+    S_wing_grid,
+    TOGW_guess_init,
+    T_total_guess_init,      # total thrust guess (all engines), lbf
+    num_engines,
+    S_ht, S_vt, S_wet_fuselage,
+    W_crew, W_payload,
+    coef_1_cruise_constraint, coef_2_cruise_constraint,
+    tol_T_rel=1e-3,          
+    max_iter_T=100,
+    relax=1.0                # optional damping: 0.3~1.0 (use <1 if oscillation)
+):
+    
+    T_total_converged = []
+    W0_converged = []
+    iter_counts = []
+    T_total_history_allS = []  # list of arrays (one per S)
 
+    for S_wing in S_wing_grid:
+
+        # Initialize outer loop for this S
+        T_total = T_total_guess_init
+        T_hist = []
+
+        for k in range(max_iter_T):
+            # Convert total thrust to per-engine thrust for the weight model
+            T_0 = T_total / num_engines
+
+            # Inner loop: converge weight for (S, T_0)
+            W0, wconv, it_w, W0_hist = inner_loop_weight(
+                TOGW_guess_init,
+                S_wing, S_ht, S_vt, S_wet_fuselage,
+                num_engines, W_crew, W_payload, T_0
+            )
+
+            # Wing loading from converged weight
+            WS = W0 / S_wing
+
+            # Constraint equations: compute required T/W from W/S
+            # -----------------------------------------
+            # For cruise as example:
+            TW_req = coef_1_cruise_constraint/WS + coef_2_cruise_constraint*WS
+            # For takeoff as example:
+            # TW_req = coef_takeoff_constraint*WS
+
+            # # For landing
+            # TW_req = coef_landing_constraint
+
+            # # For climb
+            # TW_req = coef_1_climb_constraint
+            # -----------------------------------------
+            
+            # Required total thrust
+            T_req = TW_req * W0
+
+            # Store history
+            T_hist.append(T_total)
+
+            # Check outer convergence
+            if abs(T_req - T_total) / max(abs(T_total), 1e-9) < tol_T_rel:
+                T_total = T_req
+                break
+
+            # Update thrust (optionally relaxed damping)
+            T_total = (1 - relax) * T_total + relax * T_req
+
+        # Save results for this S
+        T_total_converged.append(T_total)
+        W0_converged.append(W0)
+        iter_counts.append(k+1)
+        T_total_history_allS.append(np.array(T_hist))
+
+    return (np.array(T_total_converged),
+            np.array(W0_converged),
+            np.array(iter_counts),
+            T_total_history_allS,
+            W0, wconv, it_w, W0_hist)
+
+T_total_cruise, W0_cruise, iter_cruise, T_total_history_allS_cruise, \
+W0_cruise, didweightconverge_cruise, it_w_cruise, W0_hist_cruise = \
+outer_loop_thrust_for_cruise(
+    S_wing_grid, TOGW_guess, T0_ref_F18EF, num_engines, S_ht, S_vt, S_wet_fuselage, 
+    W_pilot, W_payload, coef_cruise1Ma2, coef_cruise2Ma2
+    )
+
+plt.figure(figsize=(16,9))
+plt.title('Converged T vs S for Cruise Constraint')
+plt.xlabel("Wing Area S (ft^2)")
+plt.ylabel("Total Thrust T (lbf)")
+plt.plot(S_wing_grid, T_total_cruise, label='Converged T for Cruise Constraint', marker='o')
+plt.legend(loc='best')
+plt.grid()
+plt.show()
 
 
 
