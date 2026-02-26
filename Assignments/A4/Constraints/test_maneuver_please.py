@@ -438,7 +438,7 @@ def calculate_fuel_weight_fraction(L_D_max, R, E, c, V):
 
     return Wf_W0
 
-#region weight inner loop def
+#region inner loop def
 def inner_loop_weight(
     TOGW_guess,
     S_wing, S_ht, S_vt, S_wet_fuselage,
@@ -475,7 +475,7 @@ def inner_loop_weight(
     converged = (delta <= err)
     return TOGW_guess, converged, it, np.array(W0_history)
 
-#region inner loop exe
+#region weight loop test
 
 #these values are used as historical reference to give an estimate for the TOGW:
 S_wing_ref_F18EF = 500 #ft^2
@@ -485,6 +485,9 @@ T0_ref_F18EF = 44000 #this is thrust value for both engines for the F-18E/F, sin
 TOGW_guess = 50000 #lbf
 final_TOGW, converged, iterations, W0_history = inner_loop_weight(TOGW_guess, S_wing_ref_F18EF, S_ht, S_vt,  S_wet_fuselage, num_engines, W_pilot, W_payload, T0_ref_F18EF)
 # print(f"Converged Takeoff Gross Weight Estimate: {final_TOGW}")
+
+#region thrust loop def
+
 
 
 
