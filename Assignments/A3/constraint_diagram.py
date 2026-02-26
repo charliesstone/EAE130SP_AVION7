@@ -66,7 +66,7 @@ climbTW = climb(k, C_D0, CLmax_T)
 ceilingTW = 2 * np.sqrt(k * C_D0)
 #endregion
 
-#region climb/dash
+#region cruise/dash
 M_cruiseidl = 2.0
 M_cruise_tar = 1.6
 def dash(Cd0, k, WS, M, rho):
