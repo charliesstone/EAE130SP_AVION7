@@ -1,0 +1,51 @@
+Sref = 34.830000 
+Cref = 3.387942 
+Bref = 11.067952 
+X_cg = 0.000000 
+Y_cg = 0.000000 
+Z_cg = 0.000000 
+Mach = 0.000000 
+AoA = 1.000000, 3.000000, 5.000000 
+Beta = 0.000000 
+ReCref = 10000000.000000 
+Vinf = 185.000000 
+Rho = 0.500000 
+StallModel = 0 
+Clo2D = 0.000000 
+CLMax2D = 1.000000 
+Symmetry = 0 
+FreezeMultiPoleAtIteration = 10000 
+FreezeWakeAtIteration = 10000 
+FreezeWakeRootVortices = 0 
+ImplicitWake = 0 
+ImplicitWakeStartIteration = 0 
+FarDist = -1.000000 
+NumWakeNodes = 8 
+WakeIters = 5 
+WakeRelax = 1.000000 
+ForwardGMRESConvergenceFactor = 1.000000 
+AdjointGMRESConvergenceFactor = 1.000000 
+NonLinearConvergenceFactor = 1.000000 
+CoreSizeFactor = 1.000000 
+FarAway = 5.000000 
+UpdateMatrixPreconditioner = 0 
+UseWakeNodeMatrixPreconditioner = 0 
+Write2DFEMFile = 0 
+WriteTecplotFile = 0 
+NumberOfControlGroups = 3 
+Main_Wing_SS_CONT_0
+Main_Wing_Surf0_SS_CONT_0,Main_Wing_Surf1_SS_CONT_0
+1, 1
+0
+H_Stabs_SS_CONT_0
+H_Stabs_Surf0_SS_CONT_0,H_Stabs_Surf1_SS_CONT_0
+1, 1
+0
+V_Stab_SS_CONT_0
+V_Stab_Surf0_SS_CONT_0,Main_Wing_Surf0_SS_CONT_0,Main_Wing_Surf1_SS_CONT_0,H_Stabs_Surf0_SS_CONT_0,H_Stabs_Surf1_SS_CONT_0
+1, 1, 1, 1, 1
+0
+NumberofSurveyPoints = 0 
+NumberOfInlets = 0 
+NumberOfNozzles = 0 
+VSP_StabilityType = 1 

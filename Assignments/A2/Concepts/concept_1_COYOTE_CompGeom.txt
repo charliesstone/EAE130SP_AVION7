@@ -1,39 +1,26 @@
 ...Comp Geom...
 10 Num Comps
-14 Total Num Meshes
-18096 Total Num Tris
+53 Total Num Meshes
+10454 Total Num Tris
 
 Theo_Area   Wet_Area   Theo_Vol    Wet_Vol  Name
-   38.413     26.612      2.592      2.172  Main Wing      
-   38.413     26.612      2.592      2.172  Main Wing      
-   36.336     14.284      3.060      1.455  LEX            
-   36.336     14.284      3.060      1.455  LEX            
-   25.763     17.796      1.836      1.533  H Stabs        
-   14.340      8.571      1.053      0.761  V Stab         
-    1.870      1.698      0.119      0.119  Wingtip Hardpoints
-    1.870      1.698      0.119      0.119  Wingtip Hardpoints
-   53.703     26.778     14.698      8.864  Fuselage       
-   21.159     10.077      3.848      2.216  Cockpit        
-   39.807     24.394     10.008      7.418  Intakes        
-   34.985     12.713      8.330      3.661  Engines        
-   12.686      4.438      2.305      0.975  Canopy Glass   
+   17.420     17.420     -0.012     -0.012  Main Wing      
+   17.420      0.000     -0.012     -0.012  Main Wing      
+   32.746     16.373     -0.134     -0.134  LEX            
+   12.524      6.262     -1.452     -1.452  H Stabs        
+   80.141     24.093     -0.501     -0.501  V Stab         
+    2.425      1.212     -2.425     -2.425  Wingtip Hardpoints
 -------------------------------------------------
-  355.682    189.954     53.620     32.921  Totals         
+  162.676     65.360     -4.535     -2.268  Totals         
 
 Tag_Theo_Area   Tag_Wet_Area    Tag_Name
-       38.413         26.612    Main Wing_S_Surf0
-       38.413         26.612    Main Wing_S_Surf1
-       36.336         14.284    LEX_S_Surf0    
-       36.336         14.284    LEX_S_Surf1    
-       12.882          8.898    H Stabs_S_Surf0
-       12.882          8.898    H Stabs_S_Surf1
-       14.340          8.571    V Stab_S_Surf0 
-        1.870          1.698    Wingtip Hardpoints_S_Surf0
-        1.870          1.698    Wingtip Hardpoints_S_Surf1
-       53.703         26.778    Fuselage_S_Surf0
-       21.159         10.077    Cockpit_S_Surf0
-       39.807         24.394    Intakes_S_Surf0
-       34.985         12.713    Engines_S_Surf0
-       12.686          4.438    Canopy Glass_S_Surf0
-WARNING: 1 open meshes merged
-     Merged: H Stabs
+       17.420         17.420    Main Wing_C_Surf0
+       16.373         16.373    LEX_C_Surf0    
+        6.262          6.262    H Stabs_C_Surf0
+        0.606          0.606    Wingtip Hardpoints_V_Surf0
+        0.606          0.606    Wingtip Hardpoints_H_Surf0
+       14.438          7.219    Fuselage_V_Surf0
+        6.329          3.164    Cockpit_V_Surf0
+       13.665          6.833    Intakes_V_Surf0
+       11.092          5.455    Engines_V_Surf0
+        2.843          1.421    Canopy Glass_V_Surf0

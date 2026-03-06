@@ -1,0 +1,14 @@
+# VSP Tag Key File
+D:/School/EAE130SP_AVION7/OpenVSP/A5 remodel for calculation of NP/A5_regeom.tkey
+10
+
+1,Main Wing_S_Surf0
+2,Main Wing_S_Surf1
+3,HStab_S_Surf0
+4,HStab_S_Surf1
+5,LERX_S_Surf0
+6,LERX_S_Surf1
+7,Main Wing_S_Surf0,SS_CONT_0
+8,Main Wing_S_Surf1,SS_CONT_0
+9,HStab_S_Surf0,SS_CONT_0
+10,HStab_S_Surf1,SS_CONT_0
