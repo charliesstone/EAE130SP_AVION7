@@ -1,10 +1,12 @@
 import numpy as np
 import inner_loop_2 as inner
 import constraint_diagram as con
+import matplotlib.pyplot as plt
 
-S_grid = np.linspace(1, 600, 100)
+S_grid = np.linspace(300, 600, 100)
 T_grid = np.linspace(1, 60000, 100)
 W0_guess = 47000 #this initial guess used is the TOGW of the F-18EF Super Hornet in lbf
+T_guess = 40000 #this is some arbitrary reasonable guess for total thrust in lbf
 
 #region loop_TW
 def loop_TW(S_grid, W0_guess, T_guess):
@@ -18,44 +20,11 @@ def loop_TW(S_grid, W0_guess, T_guess):
     Args:
         S_grid (array): List of reasonable S values. Each step in the for loop uses one single S_grid[i] value indexed from this array.
         W0_guess (float): Initial guess of W0 to start the iterative process in inner.loop().
-        T_guess (float): Initial guess of W0 to start the iterative process in loop_TW().
+        T_guess (float): Initial guess of T to start the iterative process in loop_TW().
 
     Returns:
-        T_grid_ceiling (array): Thrust values computed for the service ceiling constraint
-            at each S_grid[i] station.
-
-        W_grid_ceiling (array): Aircraft weight values corresponding to T_grid_ceiling
-            for each S_grid[i] station.
-
-        T_grid_climb (array): Thrust values computed for the climb constraint
-            at each S_grid[i] station.
-
-        W_grid_climb (array): Aircraft weight values corresponding to T_grid_climb
-            for each S_grid[i] station.
-
-        T_grid_cruise_idl (array): Thrust values computed for the ideal cruise/dash
-            condition (Mach = M_cruiseidl) at each S_grid[i] station.
-
-        W_grid_cruise_idl (array): Aircraft weight values corresponding to
-            T_grid_cruise_idl for each S_grid[i] station.
-
-        T_grid_cruise_tar (array): Thrust values computed for the target cruise/dash
-            condition (Mach = M_cruise_tar) at each S_grid[i] station.
-
-        W_grid_cruise_tar (array): Aircraft weight values corresponding to
-            T_grid_cruise_tar for each S_grid[i] station.
-
-        T_grid_maneuver_idl (array): Thrust values computed for the ideal sustained
-            maneuver constraint (load factor = n_idl) at each S_grid[i] station.
-
-        W_grid_maneuver_idl (array): Aircraft weight values corresponding to
-            T_grid_maneuver_idl for each S_grid[i] station.
-
-        T_grid_maneuver_tar (array): Thrust values computed for the target sustained
-            maneuver constraint (load factor = n_tar) at each S_grid[i] station.
-
-        W_grid_maneuver_tar (array): Aircraft weight values corresponding to
-            T_grid_maneuver_tar for each S_grid[i] station.
+        T_grid (dict): Dictionary of arrays of thrust, one array for each of the 6 TW-dependent constraints
+        W_grid (dict): Dictionary of arrays of TOGW, one array for each of the 6 TW-dependent constraints, of same shape as T_grid
     """
 
     #region ini
@@ -63,12 +32,21 @@ def loop_TW(S_grid, W0_guess, T_guess):
     T_grid = {name: [] for name in constraints}
     W_grid = {name: [] for name in constraints}
     iterations_grid = []
+    weight_iterations_grid = []
 
     for S_wing in S_grid:   #for loop to sweep across all S_grid values
 
         eps = 1e-6
         residual = []
         iterations = 0
+        T_guess_dict = {
+                "ceiling": T_guess,
+                "climb": T_guess,
+                "cruise_idl": T_guess,
+                "cruise_tar": T_guess,
+                "maneuver_idl": T_guess,
+                "maneuver_tar": T_guess
+            }
         
         while len(residual) == 0 or max(residual) > eps:
 
@@ -78,19 +56,13 @@ def loop_TW(S_grid, W0_guess, T_guess):
             TOGW = {}
             WS = {}
             #assigning the initial T_guess to all constraints
-            T_guess_ceiling, T_guess_climb, T_guess_cruise_idl, T_guess_cruise_tar, T_guess_maneuver_idl, T_guess_maneuver_tar = T_guess
-            T_guess_dict = {
-                "ceiling": T_guess_ceiling,
-                "climb": T_guess_climb,
-                "cruise_idl": T_guess_cruise_idl,
-                "cruise_tar": T_guess_cruise_tar,
-                "maneuver_idl": T_guess_maneuver_idl,
-                "maneuver_tar": T_guess_maneuver_tar
-            }
+            
             for name in T_guess_dict:
-                TOGW[name] = inner.loop(T_guess_dict[name], S_wing, W0_guess)
+                TOGW[name], weightiter = inner.loop(T_guess_dict[name], S_wing, W0_guess)
+                weight_iterations_grid.append(weightiter)
+                # print(TOGW, f"max iterations for TOGW is {np.max(np.array(weight_iterations_grid))}")
                 WS[name] = TOGW[name]/S_wing
-
+            
             #a required minimum T/W (thrust loading) given each requirement that is not independent of T/W is catalogued here:
             #region TWs 
 
@@ -101,12 +73,13 @@ def loop_TW(S_grid, W0_guess, T_guess):
             TWreq_climb = con.climbTW
 
             #cruise/dash
-            TW_reqcruiseidl = con.dash(WS=WS["cruise_idl"], M=con.M_cruiseidl)
-            TW_reqcruisetar = con.dash(WS=WS["cruise_tar"], M=con.M_cruise_tar)
+            # print(WS["cruise_idl"])
+            TW_reqcruiseidl, _, _ = con.dash(WS=WS["cruise_idl"], M=con.M_cruiseidl)
+            TW_reqcruisetar, _, _ = con.dash(WS=WS["cruise_tar"], M=con.M_cruise_tar)
 
             #manuever
-            TW_reqmanuvidl = con.maneuver_TW(WS=WS["maneuver_idl"], n=con.n_idl)
-            TW_reqmanuvtar = con.maneuver_TW(WS=WS["maneuver_tar"], n=con.n_tar)
+            TW_reqmanuvidl, _, _ = con.maneuver_TW(WS=WS["maneuver_idl"], n=con.n_idl)
+            TW_reqmanuvtar, _, _ = con.maneuver_TW(WS=WS["maneuver_tar"], n=con.n_tar)
 
             #region new thrusts
 
@@ -139,7 +112,7 @@ def loop_TW(S_grid, W0_guess, T_guess):
             for name in T_new_dict:
                 res = np.abs(T_new_dict[name] - T_guess_dict[name])
                 residual.append(res)
-                T_guess_dict[name] = T_new_dict[name]
+                T_guess_dict[name] = 0.5*T_guess_dict[name] + 0.5*T_new_dict[name]
             iterations += 1
         
         for name in T_grid:
@@ -148,7 +121,31 @@ def loop_TW(S_grid, W0_guess, T_guess):
             W_grid[name].append(TOGW[name])
         iterations_grid.append(iterations)
 
-print(T_grid)
+    return T_grid, W_grid
+
+T_gridconverged, W_gridconverged = loop_TW(S_grid=S_grid, W0_guess=W0_guess, T_guess=T_guess)
+
+
+#region plotting
+# Convert lists to numpy arrays if needed
+S = np.array(S_grid)
+
+plt.figure(figsize=(10, 6))
+
+# Plot each curve in T_gridconverged
+for key, T_vals in T_gridconverged.items():
+    T_array = np.array(T_vals)  # convert list to array
+    plt.plot(S, T_array, label=key, linewidth=2)
+# Add labels and title
+plt.xlabel("Wing Area S (ft²)")
+plt.ylabel("Thrust T (lbf)")
+plt.title("Thrust Curves vs Wing Area")
+plt.legend()
+plt.grid(True)
+
+# Show the plot
+plt.tight_layout()
+plt.show()
 
 
             

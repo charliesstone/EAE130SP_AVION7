@@ -47,7 +47,7 @@ def drag_polar(e):
     CD_0 = 0.01395    # from OpenVSP model circ. 3/6/26
     AR = 3.5        # From OpenVSP model circ. 3/6/26
 
-    ## for mission segments, we could use different e values <----- i implemented this - charlie 
+    ## for mission segments, we could use different e values <----- i implemented this
     
 
     k = 1/(np.pi*AR*e)
@@ -104,8 +104,9 @@ def loop(T_guess, S_guess, W0_guess):
     S_ht = 140.25339        # horizontal tail area (from current openvsp model as of 3/6/26)
     S_vt = 140.64069        # vertical tail area (from current openvsp model as of 3/6/26)
     S_wet_fuselage = 385.39 # fuselage wetted area (from current openvsp model as of 3/6/26)
+    max_iter = 100
 
-    while residual > eps:
+    while residual > eps and iterations < max_iter:
 
         # # # # # # # #
         # Engine weight
@@ -134,7 +135,7 @@ def loop(T_guess, S_guess, W0_guess):
 
         # CL = math.sqrt(CD0/(3*k))
         # L_D = CL/(CD0 + k*CL**2) <-------- these are not called, what are they doing / why are they here? 
-        # i commented them out idk -charlie
+        # i commented them out idk 
 
         # # # # # # # #
         # Fuel weight
@@ -152,6 +153,9 @@ def loop(T_guess, S_guess, W0_guess):
 
         W0_guess = W0_new
         iterations += 1
+        if iterations == max_iter:
+            print(f"Warning: W0 did not converge for S={S_guess}, T={T_guess}")
+            W0_guess = np.nan
 
     return W0_guess, iterations
 
