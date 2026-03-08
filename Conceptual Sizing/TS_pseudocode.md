@@ -57,12 +57,3 @@ outer loop thrust function definition for W/S CONSTRAINTS ONLY
     output S_grid and W_grid of all converged S and W at each perscribed T
 
 plot each constraint based on whether or not they are WS or TW constraints
-
-
-
-
-
-
-
-
-

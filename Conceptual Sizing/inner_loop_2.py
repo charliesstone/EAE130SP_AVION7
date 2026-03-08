@@ -44,7 +44,7 @@ e_takeoff = 0.75
 e_landing = 0.7
 def drag_polar(e):
 
-    CD0 = 0.01395    # from OpenVSP model circ. 3/6/26
+    CD_0 = 0.01395    # from OpenVSP model circ. 3/6/26
     AR = 3.5        # From OpenVSP model circ. 3/6/26
 
     ## for mission segments, we could use different e values <----- i implemented this - charlie 
@@ -52,14 +52,28 @@ def drag_polar(e):
 
     k = 1/(np.pi*AR*e)
 
-    return CD0, k
+    return CD_0, k
 
 
 # # # # # # #
 # INNER LOOP
 # # # # # # #
 #region inner loop
-def inner_loop(T_guess, S_guess, W0_guess):
+def loop(T_guess, S_guess, W0_guess):
+    """
+    This function finds a converged takeoff gross weight (TOGW) using iteration. It guesses 
+    an initial weight using a T_guess and S_guess, and then backcalculates W using an engine thrust correlation calculate_engine_weight() and some simple area-based buildup techniques.
+    It then iterates until the W value is converged given the fixed T_guess and S_guess. 
+
+    Args:
+        S_guess (float): Inputted wing area value.
+        W0_guess (float): Initial guess of W0 to start the iterative process in inner.loop().
+        T_guess (float): Inputted thrust value.
+
+    Returns:
+        W0_guess (float): Converged TOGW value.
+        iterations (float): Number of iterations needed to reach a converged value. 
+    """
 
     eps = 1e-6
     residual = 1
@@ -155,6 +169,6 @@ S_guess = 500        # actual wing ref area of super hornet
 W0_guess = 47000     # initial TOGW guess
 W0_F18EF = 47000     # actual TOGW of super hornet
 
-W0, it = inner_loop(T_guess, S_guess, W0_guess)
+W0, it = loop(T_guess, S_guess, W0_guess)
 W0_diff = np.abs(W0  - W0_F18EF)/W0_F18EF * 100
 print(f"Compared to the Super Hornet's TOGW of {W0_F18EF}, the inner loop gives a value of {W0} after {it} iterations, which is {np.round(W0_diff, 1)}% inaccurate")
