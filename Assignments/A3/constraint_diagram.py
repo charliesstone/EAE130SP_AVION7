@@ -101,16 +101,19 @@ rho_20k = 0.001267  # slugs/ft^3
 V_turn = 1000       # ft/s 
 q_turn = 0.5 * rho_20k * V_turn**2
 
-def maneuver_TW(WS, Cd0, k, q, n):
+def maneuver_TW(WS, n):
     # Sustained turn : T/W = D/W at load factor n
-    return (q * Cd0) / WS + (k * n**2 * WS) / q
+    manuv_coef1 = q_turn * C_D0
+    manuv_coef2 = k_clean * n**2 / q_turn
+    TW = manuv_coef1 / WS + manuv_coef2 * WS
+    return TW, manuv_coef1, manuv_coef2
 
 #target and ideal load factors
 n_tar = 7.0   # target Nz
 n_idl = 8.0   # ideal Nz
 
-TW_manuv7g = maneuver_TW(wingload, C_D0, k_clean, q_turn, n_tar)
-TW_manuv8g = maneuver_TW(wingload, C_D0, k_clean, q_turn, n_idl)
+TW_manuv7g, manuv_coef1_7g, manuv_coef2_7g = maneuver_TW(wingload, n_tar)
+TW_manuv8g, manuv_coef1_8g, manuv_coef2_8g = maneuver_TW(wingload, n_idl)
 #endregion
 
 
@@ -165,10 +168,10 @@ TW_required_at_WS = np.interp(WS_design, wingload, TW_envelope)
 margin = 1.08
 TW_design = margin * TW_required_at_WS
 
-print("\n=== Selected Design Point (bottom-right feasible) ===")
-print(f"WS_design = {WS_design:.2f} lbf/ft^2")
-print(f"TW_design = {TW_design:.3f}")
-print ("landing stall speed", Vstall_L, "ft/s")
+# print("\n=== Selected Design Point (bottom-right feasible) ===")
+# print(f"WS_design = {WS_design:.2f} lbf/ft^2")
+# print(f"TW_design = {TW_design:.3f}")
+# print ("landing stall speed", Vstall_L, "ft/s")
 # Plot the design point on the constraint diagram
 plt.scatter(WS_design, TW_design, s=120, marker="o", color="red", zorder=10, label="Design Point")
 
@@ -195,13 +198,13 @@ plt.ylabel("Thrust Loading T/W")
 plt.title("Constraint Diagram: T/W vs W/S")
 plt.grid(True)
 plt.legend(loc="upper right")
-plt.show()
+# plt.show()
 
-print("\n=== Key W/S limits ===")
-print("Landing stall W/S limit:", stallWS_L)
-print("Takeoff stall W/S limit:", stallWS_T)
-print("Catapult takeoff W/S limit:", takeoffWS)
-print("Chosen WS_max:", WS_max)
+# print("\n=== Key W/S limits ===")
+# print("Landing stall W/S limit:", stallWS_L)
+# print("Takeoff stall W/S limit:", stallWS_T)
+# print("Catapult takeoff W/S limit:", takeoffWS)
+# print("Chosen WS_max:", WS_max)
 
 
 
