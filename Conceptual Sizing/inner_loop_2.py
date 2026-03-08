@@ -1,5 +1,4 @@
 import numpy as np
-import math
 
 # # # # # # # # # # # # # # # # # # # # # # # 
 # Fuel fraction function (A2 and A3)
@@ -157,9 +156,5 @@ W0_guess = 47000     # initial TOGW guess
 W0_F18EF = 47000     # actual TOGW of super hornet
 
 W0, it = inner_loop(T_guess, S_guess, W0_guess)
-
 W0_diff = np.abs(W0  - W0_F18EF)/W0_F18EF * 100
-
-print("Converged TOGW =", W0)
-print("Iterations =", it)
-print(f"Compared to the Super Hornet's TOGW of {W0_F18EF}, the inner loop gives a value of {W0}, which is {np.round(W0_diff, 1)}% inaccurate")
+print(f"Compared to the Super Hornet's TOGW of {W0_F18EF}, the inner loop gives a value of {W0} after {it} iterations, which is {np.round(W0_diff, 1)}% inaccurate")
