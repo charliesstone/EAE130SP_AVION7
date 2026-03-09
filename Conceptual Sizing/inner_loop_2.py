@@ -150,6 +150,7 @@ def loop(T_guess, S_guess, W0_guess):
         W0_new = W_empty + W_fuel + W_crew + W_payload
 
         residual = abs(W0_new - W0_guess)/W0_guess
+        
 
         W0_guess = W0_new
         iterations += 1
