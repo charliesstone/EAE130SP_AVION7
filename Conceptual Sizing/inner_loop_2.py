@@ -100,6 +100,8 @@ def loop(T_guess, S_guess, W0_guess):
         W_payload = W_strike
     elif W_A2A > W_strike: # <--------- using the heavier loadout weight for analysis
         W_payload = W_A2A
+    else:                  # ADDED: safe tie case so W_payload is always defined
+        W_payload = W_strike
 
     S_ht = 140.25339        # horizontal tail area (from current openvsp model as of 3/6/26)
     S_vt = 140.64069        # vertical tail area (from current openvsp model as of 3/6/26)
@@ -154,9 +156,10 @@ def loop(T_guess, S_guess, W0_guess):
 
         W0_guess = W0_new
         iterations += 1
-        if iterations == max_iter:
-            print(f"Warning: W0 did not converge for S={S_guess}, T={T_guess}")
-            W0_guess = np.nan
+
+    if iterations == max_iter and residual > eps:  # ADJUSTED: move non-convergence check outside the loop so it actually executes
+        print(f"Warning: W0 did not converge for S={S_guess}, T={T_guess}")
+        W0_guess = np.nan
 
     return W0_guess, iterations
 

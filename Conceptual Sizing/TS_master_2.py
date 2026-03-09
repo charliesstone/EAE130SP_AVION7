@@ -3,7 +3,7 @@ import outer_loop_2 as outer
 import matplotlib.pyplot as plt
 
 S_gridref = np.linspace(150, 750, 100)
-T_gridref = np.linspace(1, 60000, 100)
+T_gridref = np.linspace(1, 50000, 100)
 W0_guess = 47000 #this initial guess used is the TOGW of the F-18EF Super Hornet in lbf
 T_guess = 40000 #this is some arbitrary reasonable guess for total thrust in lbf
 S_guess = 500 #this is the wing area of the F-18EF in ft^2
@@ -18,7 +18,7 @@ for name in T_gridconverged:
 for name in S_gridconverged:
     plt.plot(S_gridconverged[name], T_gridref, label=f"{name} WS")
 plt.xlim((200, 750))
-plt.ylim((0, 60000))
+plt.ylim((0, 50000))
 plt.xlabel("Wing Area S (ft²)")
 plt.ylabel("Thrust T (lbf)")
 plt.legend()

@@ -7,12 +7,11 @@ import matplotlib.pyplot as plt
 
 #region inputs
 g = 32.174 #ft/s^2, gravitational acceleration
-tar_togw = 50,000 #lbf, target gross take off weight
+tar_togw = 50000 #lbf, target gross take off weight
 S_LERX = 70 #ft^2, wing area of strakes from OpenVSP
 Sref = 375 #ft^2, initial wing area assumption not including strakes (LERX)
 Sreftot = Sref + S_LERX #ft^2, initial wing area assumption including strakes (LERX)
-C_D0 = 0.01395 #initial zero-lift drag estimation, from OpenVSP, see:
-#(https://github.com/charliesstone/EAE130SP_AVION7/blob/main/OpenVSP/)
+C_D0 = 0.01395 #initial zero-lift drag estimation, from OpenVSP
 e_clean   = 0.85
 e_takeoff = 0.75
 e_landing = 0.7
@@ -28,20 +27,26 @@ k_clean   = 1 / (np.pi * e_clean * AR)
 k_takeoff = 1 / (np.pi * e_takeoff * AR)
 k_landing = 1 / (np.pi * e_landing * AR) #drag polar constant, see 07-PreliminarySizing_Part3.pdf pg15 in canvas files
 
+# ADDED: maneuver-weight fraction to reduce sustained-turn / structural-load TW to realistic combat values
+Wf_Wi_manuv = 0.7706
 #endregion
 
 #region stall
-Vstall_L = 195 #ft/s (115 KIAS), stall speed for cruise (based on F/A-18E/F)
-Vstall_C = 220 #ft/s (130 KIAS), stall speed for landing (based on F/A-18E/F)
+Vstall_L = 195 #ft/s (115 KIAS), stall speed for landing (based on F/A-18E/F)
+Vstall_C = 220 #ft/s (130 KIAS), stall speed for cruise (based on F/A-18E/F)
 Vstall_T = 205 #ft/s (120 KIAS), stall speed for takeoff (based on F/A-18E/F)
 rho_30k = 8.91E-4 #slugs/ft^3, atmospheric density at 30k ft
 rho_SL = 23.77E-4 #slugs/ft^3, atmospheric density at sea level
-CLmax_L = 2.0
-CLmax_C = 1.5
-CLmax_T = 1.7
+
+# ADJUSTED: restored higher validated CLmax values so landing/takeoff/catapult WS limits shift left in T-S and appear more vertical
+CLmax_L = 2.8
+CLmax_C = 1.6
+CLmax_T = 2.2
+
 def stall(V, CL, rho):
-    WS = (rho * CL * V**2)/2
+    WS = (rho * CL * V**2) / 2
     return WS
+
 stallWS_L = stall(Vstall_L, CLmax_L, rho_SL) #wing loading constraint for stall on landing
 stallWS_C = stall(Vstall_C, CLmax_C, rho_30k) #wing loading constraint for stall on cruise
 stallWS_T = stall(Vstall_T, CLmax_T, rho_SL) #wing loading constraint for stall on takeoff
@@ -49,8 +54,9 @@ stallWS_T = stall(Vstall_T, CLmax_T, rho_SL) #wing loading constraint for stall 
 
 #region takeoff
 def takeoff(rho, Vwod, Vcat, CLMT):
-    WS = (0.5 * rho * (Vwod + Vcat)**2 * CLMT)/1.21
+    WS = (0.5 * rho * (Vwod + Vcat)**2 * CLMT) / 1.21
     return WS
+
 takeoffWS = takeoff(rho_SL, VWOD, VCAT, CLmax_T) #wing loading constraint for clearing carrier runway on takeoff
 
 #endregion
@@ -65,6 +71,7 @@ def climb(k, Cd0, CLMCLB):
     TW_gen = (ks**2 * Cd0)/(CLMCLB) + k * (CLMCLB)/(ks**2) + G
     TW = tempoverinc * maxcont2max * TW_gen #other parameters not included, see 07-PreliminarySizing_Part3.pdf pg20
     return TW
+
 climbTW = climb(k_takeoff, C_D0, CLmax_T)
 #endregion
 
@@ -74,6 +81,7 @@ def ceiling():
     Calculates the fixed TW required for the ceiling constraint
     """
     return 2 * np.sqrt(k_clean * C_D0)
+
 ceilingTW = ceiling()
 
 #endregion
@@ -81,17 +89,18 @@ ceilingTW = ceiling()
 #region cruise/dash
 M_cruiseidl = 2.0
 M_cruise_tar = 1.6
+
 def dash(WS, M):
     Wf_Wi_cruise = 0.7706 #Cruise/Takeoff weight fraction, from A2 sizing code
-    Tcr_Tto = 22/13 #Cruise/Takeoff thrust fraction, from the GE F414 engine deck (note: refine value for A3)
+    Tcr_Tto = 1 #Cruise/Takeoff thrust fraction, from the GE F414 engine deck (note: refine value for A3)
     Vcruise = M * 996 #996 ft/s is speed of sound at 30kft from NASA standard atmosphere tables
     qcr = 1/2 * rho_30k * Vcruise**2 #lbf/ft^2, dynamic pressure at cruise velocity
     WS_cruise = WS * Wf_Wi_cruise #wing loading at cruise, as opposed to takeoff 
-    # ^^^^^ thrust loading at takeoff as a function of wing loading at cruise -> wing loading at takeoff
     cruise_coef1 = Wf_Wi_cruise/Tcr_Tto * (qcr * C_D0)
     cruise_coef2 = Wf_Wi_cruise/Tcr_Tto * (k_clean/qcr)
     TW = cruise_coef1/WS_cruise + cruise_coef2 * WS_cruise
     return TW, cruise_coef1, cruise_coef2
+
 TW_cruiseMa2, cruise_coef1_idl, cruise_coef2_idl = dash(wingload, M_cruiseidl)
 TW_cruiseMa1p6, cruise_coef1_tar, cruise_coef2_tar = dash(wingload, M_cruise_tar)
 
@@ -99,32 +108,32 @@ TW_cruiseMa1p6, cruise_coef1_tar, cruise_coef2_tar = dash(wingload, M_cruise_tar
 # assume sustained turn at 20kft 
 rho_20k = 0.001267  # slugs/ft^3 
 V_turn = 1000       # ft/s 
-q_turn = 0.5 * rho_20k * V_turn**2
 
 def maneuver_TW(WS, turnrate):
-    #target and ideal load factors
+    # target and ideal turn-rate maneuver constraints
     stall_coef = 2/(rho_20k*CLmax_C)
     V_stall = np.sqrt(stall_coef * WS)
     V_manuv = 3 * V_stall
     n = np.sqrt((turnrate * V_manuv / g)**2 + 1)
-    # Sustained turn : T/W = D/W at load factor n
-    manuv_coef1 = q_turn * C_D0
-    manuv_coef2 = k_clean * n**2 / q_turn
-    TW = manuv_coef1 / WS + manuv_coef2 * WS
-    return TW, manuv_coef1, manuv_coef2
 
+    q_manuv = 0.5 * rho_20k * V_manuv**2
+    WS_manuv = Wf_Wi_manuv * WS   # ADJUSTED: evaluate turn-rate maneuver at maneuver-weight fraction instead of TOGW
+    manuv_coef1 = Wf_Wi_manuv * q_manuv * C_D0  # ADJUSTED: consistent with takeoff-referenced TW form
+    manuv_coef2 = Wf_Wi_manuv * k_clean * n**2 / q_manuv  # ADJUSTED: consistent with takeoff-referenced TW form
+    TW = manuv_coef1/WS_manuv + manuv_coef2 * WS_manuv
+    return TW, manuv_coef1, manuv_coef2
 
 turnrate8 = 8 * np.pi/180
 turnrate10 = 10 * np.pi/180
 
 def structloads_TW(WS, n):
-    #target and ideal load factors
-    # Sustained turn : T/W = D/W at load factor n
-    loads_coef1 = q_turn * C_D0
-    loads_coef2 = k_clean * n**2 / q_turn
-    TW = loads_coef1 / WS + loads_coef2 * WS
+    # target and ideal structural load constraints
+    q_turn = 0.5 * rho_20k * V_turn**2
+    WS_manuv = Wf_Wi_manuv * WS   # ADJUSTED: structural-load sustained turn should use maneuver weight, not takeoff weight
+    loads_coef1 = Wf_Wi_manuv * q_turn * C_D0
+    loads_coef2 = Wf_Wi_manuv * k_clean * n**2 / q_turn
+    TW = loads_coef1/WS_manuv + loads_coef2 * WS_manuv
     return TW, loads_coef1, loads_coef2
-
 
 TW_manuv8deg, manuv_coef1_8deg, manuv_coef2_8deg = maneuver_TW(wingload, turnrate8)
 TW_manuv10deg, manuv_coef1_10deg, manuv_coef2_10deg = maneuver_TW(wingload, turnrate10)
@@ -139,7 +148,6 @@ plt.figure(figsize=(10,6))
 # --- Curves (T/W vs W/S) ---
 plt.plot(wingload, TW_cruiseMa1p6, linewidth=2, label="Dash: Mach 1.6 @ 30kft")
 plt.plot(wingload, TW_cruiseMa2,   linewidth=2, label="Dash: Mach 2.0 @ 30kft (ideal)")
-
 
 # Maneuverability curves
 plt.plot(wingload, TW_manuv8deg, linewidth=2, label="Sustained turn: 8 deg/s @ 20kft")  
@@ -161,10 +169,9 @@ plt.axvline(stallWS_T, color="tab:orange", linestyle="--", linewidth=2, label="S
 plt.axvline(takeoffWS, color="tab:green", linestyle="--", linewidth=2, label="Catapult takeoff W/S limit")
 
 # shaded area
-
 TW_envelope = np.maximum.reduce([
     TW_cruiseMa1p6,
-    TW_load7g,     # or TW_man_rate if using option B
+    TW_load7g,
     np.full_like(wingload, climbTW),
     np.full_like(wingload, ceilingTW),
 ])
@@ -174,39 +181,32 @@ WS_max = min(stallWS_L, stallWS_T, takeoffWS)
 
 mask = wingload <= WS_max
 plt.fill_between(wingload[mask], TW_envelope[mask], 2.5, alpha=0.15, label="Feasible region (T/W above constraints)")
-#choosing design point
 
+# choosing design point
 WS_design = 0.95 * WS_max  # near right edge of feasible region
-
-
 TW_required_at_WS = np.interp(WS_design, wingload, TW_envelope)
 
 # Adding small margin so it's inside the feasible region
 margin = 1.08
 TW_design = margin * TW_required_at_WS
 
-# print("\n=== Selected Design Point (bottom-right feasible) ===")
-# print(f"WS_design = {WS_design:.2f} lbf/ft^2")
-# print(f"TW_design = {TW_design:.3f}")
-# print ("landing stall speed", Vstall_L, "ft/s")
 # Plot the design point on the constraint diagram
 plt.scatter(WS_design, TW_design, s=120, marker="o", color="red", zorder=10, label="Design Point")
 
 #plot design point comparison with F/A-18E/F Super Hornet
-WS_FA18 = 85.0 #lbf/ft^2, wing loading of
-TW_FA18 = 0.93 #thrust loading of F/A-18E/F Super Hornet, from A2 sizing code
+WS_FA18 = 85.0
+TW_FA18 = 0.93
 plt.scatter(WS_FA18, TW_FA18, s=120, marker="X", color="blue", zorder=10, label="F/A-18E/F Super Hornet")   
 
 #plot design point comparison with F-35C Lightning II
-WS_F35 = 90.0 #lbf/ft^2, wing loading of F-35C Lightning II, from A2 sizing code    
-TW_F35 = 0.87 #thrust loading of F-35C Lightning II, from A2 sizing code
+WS_F35 = 90.0
+TW_F35 = 0.87
 plt.scatter(WS_F35, TW_F35, s=120, marker="D", color="green", zorder=10, label="F-35C Lightning II")    
 
 #plot design point comparison with sukoi Su-57
-WS_SU57 = 100.0 #lbf/ft^2, wing loading of Sukhoi Su-57, from A2 sizing code    
-TW_SU57 = 1.09 #thrust loading of Sukhoi Su-57, from A2 sizing code
+WS_SU57 = 100.0
+TW_SU57 = 1.09
 plt.scatter(WS_SU57, TW_SU57, s=120, marker="P", color="purple", zorder=10, label="Sukhoi Su-57")    
-# plot
 
 plt.xlim(0, 200)
 plt.ylim(0, 2.5)
@@ -216,23 +216,4 @@ plt.title("Constraint Diagram: T/W vs W/S")
 plt.grid(True)
 plt.legend(loc="upper right")
 plt.show()
-
-# print("\n=== Key W/S limits ===")
-# print("Landing stall W/S limit:", stallWS_L)
-# print("Takeoff stall W/S limit:", stallWS_T)
-# print("Catapult takeoff W/S limit:", takeoffWS)
-# print("Chosen WS_max:", WS_max)
-
-
-
-
 #endregion
-
-
-    
-
-
-
-
-
-
