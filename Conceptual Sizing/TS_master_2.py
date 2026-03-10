@@ -13,10 +13,17 @@ T_gridconverged, W_gridconverged_T = outer.loop_TW(S_grid=S_gridref, W0_guess=W0
 S_gridconverged, W_gridconverged_S = outer.loop_WS(T_grid=T_gridref, W0_guess=W0_guess, S_guess=S_guess)
 
 plt.figure(figsize=(16,9))
-for name in T_gridconverged:
-    plt.plot(S_gridref, T_gridconverged[name], label=f"{name} TW")
-for name in S_gridconverged:
-    plt.plot(S_gridconverged[name], T_gridref, label=f"{name} WS")
+plt.plot(S_gridref, T_gridconverged["ceiling"], label="Ceiling")
+plt.plot(S_gridref, T_gridconverged["climb"], label="Climb")
+plt.plot(S_gridref, T_gridconverged["cruise_idl"], label="Cruise/dash at Mach 2.0")
+plt.plot(S_gridref, T_gridconverged["cruise_tar"], label="Cruise/dash at Mach 1.6")
+plt.plot(S_gridref, T_gridconverged["maneuver_idl"], label="Maneuver at 10 deg./s")
+plt.plot(S_gridref, T_gridconverged["maneuver_tar"], label="Maneuver at 8 deg./s")
+plt.plot(S_gridref, T_gridconverged["load_tar"], label="Maximum load of 7 g's")
+plt.plot(S_gridref, T_gridconverged["load_idl"], label="Maximum load of 8 g's")
+plt.plot(S_gridconverged["landing stall"], T_gridref, label="Stall at landing")
+plt.plot(S_gridconverged["takeoff stall"], T_gridref, label="Stall at takeoff")
+plt.plot(S_gridconverged["catapult takeoff"], T_gridref, label="Catapult launch")
 plt.xlim((200, 750))
 plt.ylim((0, 50000))
 plt.xlabel("Wing Area S (ft²)")
