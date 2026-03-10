@@ -143,77 +143,107 @@ TW_load8g, loads_coef1_8g, loads_coef2_8g = structloads_TW(wingload, nzidl)
 
 
 #region constraint diagram plot
-plt.figure(figsize=(10,6))
+plt.figure(figsize=(16,9))
 
-# --- Curves (T/W vs W/S) ---
-plt.plot(wingload, TW_cruiseMa1p6, linewidth=2, label="Dash: Mach 1.6 @ 30kft")
-plt.plot(wingload, TW_cruiseMa2,   linewidth=2, label="Dash: Mach 2.0 @ 30kft (ideal)")
+colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+ci = 0
+def nextc():
+    global ci
+    c = colors[ci % len(colors)]
+    ci += 1
+    return c
 
-# Maneuverability curves
-plt.plot(wingload, TW_manuv8deg, linewidth=2, label="Sustained turn: 8 deg/s @ 20kft")  
-plt.plot(wingload, TW_manuv10deg, linewidth=2, label="Sustained turn: 10 deg/s @ 20kft") 
-plt.plot(wingload, TW_load7g, linewidth=2, label= "Sustained Turn, maximum load factor of 7g")
-plt.plot(wingload, TW_load8g, linewidth=2, label= "Sustained Turn, maximum load factor of 8g")
+plt.plot(wingload, TW_cruiseMa1p6, linewidth=2, label="Dash: Mach 1.6 @ 30kft", color=nextc())
+plt.plot(wingload, TW_cruiseMa2, linewidth=2, label="Dash: Mach 2.0 @ 30kft (ideal)", color=nextc())
 
-# Ceiling (horizontal line)
+plt.plot(wingload, TW_manuv8deg, linewidth=2, label="Sustained turn: 8 deg/s @ 20kft", color=nextc())
+plt.plot(wingload, TW_manuv10deg, linewidth=2, label="Sustained turn: 10 deg/s @ 20kft", color=nextc())
+plt.plot(wingload, TW_load7g, linewidth=2, label="Sustained Turn, n = 7g", color=nextc())
+plt.plot(wingload, TW_load8g, linewidth=2, label="Sustained Turn, n = 8g", color=nextc())
+
 plt.hlines(ceiling(), xmin=wingload.min(), xmax=wingload.max(),
-           colors="k", linestyles="--", linewidth=2, label="Service ceiling (approx)")
+           linewidth=2, label="Service ceiling (approx)", color=nextc())
 
-# Climb (constant line in your current formulation)
 plt.hlines(climbTW, xmin=wingload.min(), xmax=wingload.max(),
-           colors="gray", linestyles="--", linewidth=2, label="Climb constraint (approx)")
+           linewidth=2, label="Climb constraint (approx)", color=nextc())
 
-# --- Vertical W/S limits ---
-plt.axvline(stallWS_L, color="tab:red", linestyle="--", linewidth=2, label="Stall (landing) W/S limit")
-plt.axvline(stallWS_T, color="tab:orange", linestyle="--", linewidth=2, label="Stall (takeoff) W/S limit")
-plt.axvline(takeoffWS, color="tab:green", linestyle="--", linewidth=2, label="Catapult takeoff W/S limit")
+plt.axvline(stallWS_L, linewidth=2, label="Stall (landing) W/S limit", color=nextc())
+plt.axvline(stallWS_T, linewidth=2, label="Stall (takeoff) W/S limit", color=nextc())
+plt.axvline(takeoffWS, linewidth=2, label="Catapult takeoff W/S limit", color=nextc())
+
+#plotting of aircraft of comparible role:
+
+#takeoff ground weight in lbf
+TOGW_aircrafts = {
+    "YF-52 Coyote (AVION)": 36721.66,
+    "F-35A (USA)": 49450,
+    "F/A-18E/F (USA)": 47000,
+    "J-35 (PRC)": 48943,
+    "Euro. Typhoon (EU)": 35274,
+    "Su-27 (RUS)": 67130
+}
+
+#wing areas of reference aircrafts, in ft^2:
+S_aircrafts = {
+    "YF-52 Coyote (AVION)": 400,
+    "F-35A (USA)": 460,
+    "F/A-18E/F (USA)": 500,
+    "J-35 (PRC)": 660,
+    "Euro. Typhoon (EU)": 551,
+    "Su-27 (RUS)": 670
+}
+
+#wet thrusts of reference aircrafts, in ft^2:
+T_aircrafts = {
+    "YF-52 Coyote (AVION)": 33500,
+    "F-35A (USA)": 43000,
+    "F/A-18E/F (USA)": 22000*2,
+    "J-35 (PRC)": 26000*2,
+    "Euro. Typhoon (EU)": 20200*2,
+    "Su-27 (RUS)": 27600*2
+}
+
+#solving for wing loading and thrust loading of reference aircraft:
+WS_aircrafts = {}
+TW_aircrafts = {}
+
+for name in TOGW_aircrafts:
+    WS_aircrafts[name] = TOGW_aircrafts[name]/S_aircrafts[name]
+    TW_aircrafts[name] = T_aircrafts[name]/TOGW_aircrafts[name]
+    if name == "YF-52 Coyote (AVION)":
+        plt.scatter(WS_aircrafts[name], TW_aircrafts[name], label=name, marker="D", color="gold", zorder=2)
+    else:
+        plt.scatter(WS_aircrafts[name], TW_aircrafts[name], label=name, marker="^")
+
 
 # shaded area
-TW_envelope = np.maximum.reduce([
-    TW_cruiseMa1p6,
-    TW_load7g,
-    np.full_like(wingload, climbTW),
-    np.full_like(wingload, ceilingTW),
-])
+TW_union = np.maximum(TW_cruiseMa2, TW_load8g)
 
-# Max allowable W/S is the minimum of your W/S limits
-WS_max = min(stallWS_L, stallWS_T, takeoffWS)
+plt.fill_between(
+    wingload,
+    0,
+    TW_union,
+    color="gray",
+    alpha=0.25,
+    zorder=0,
+    label="Unfeasible region"
+)
+plt.fill_between(
+    wingload,
+    TW_load8g,
+    plt.ylim()[1],         # top of current y-axis
+    where=(wingload >= stallWS_T),
+    color="gray",
+    alpha=0.25,
+    zorder=0
+)
 
-mask = wingload <= WS_max
-plt.fill_between(wingload[mask], TW_envelope[mask], 2.5, alpha=0.15, label="Feasible region (T/W above constraints)")
 
-# choosing design point
-WS_design = 0.95 * WS_max  # near right edge of feasible region
-TW_required_at_WS = np.interp(WS_design, wingload, TW_envelope)
-
-# Adding small margin so it's inside the feasible region
-margin = 1.08
-TW_design = margin * TW_required_at_WS
-
-# Plot the design point on the constraint diagram
-plt.scatter(WS_design, TW_design, s=120, marker="o", color="red", zorder=10, label="Design Point")
-
-#plot design point comparison with F/A-18E/F Super Hornet
-WS_FA18 = 85.0
-TW_FA18 = 0.93
-plt.scatter(WS_FA18, TW_FA18, s=120, marker="X", color="blue", zorder=10, label="F/A-18E/F Super Hornet")   
-
-#plot design point comparison with F-35C Lightning II
-WS_F35 = 90.0
-TW_F35 = 0.87
-plt.scatter(WS_F35, TW_F35, s=120, marker="D", color="green", zorder=10, label="F-35C Lightning II")    
-
-#plot design point comparison with sukoi Su-57
-WS_SU57 = 100.0
-TW_SU57 = 1.09
-plt.scatter(WS_SU57, TW_SU57, s=120, marker="P", color="purple", zorder=10, label="Sukhoi Su-57")    
-
-plt.xlim(0, 200)
+plt.xlim(1, 200)
 plt.ylim(0, 2.5)
 plt.xlabel("Wing Loading W/S (lbf/ft²)")
-plt.ylabel("Thrust Loading T/W")
-plt.title("Constraint Diagram: T/W vs W/S")
-plt.grid(True)
+plt.ylabel("Thrust Loading T/W (lbf/lbf)")
+plt.title("Nondimensionalized Mission Constraint Diagram")
 plt.legend(loc="upper right")
-plt.show()
+# plt.show()
 #endregion
