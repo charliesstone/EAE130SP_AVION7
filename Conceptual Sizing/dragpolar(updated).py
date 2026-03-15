@@ -91,13 +91,11 @@ print(config_df[["config", "CD0_config", "dCD0_flaps", "dCD0_gear", "e", "k"]].t
  
 # drag polar plot 
 plt.rcParams.update({
-    "font.family": "serif bold",
+    "font.family": "serif",
     "font.serif": "Times New Roman",
-    "font.weight": "bold",
-    "axes.labelweight": "bold"
     })
 
-plt.figure(facecolor="white", figsize=(10,10))
+plt.figure(facecolor="white", figsize=(16,9))
 
 for _, row in config_df.iterrows():
     CL = np.linspace(-3.0, row["CL_max"], 900)  # CL from -4 to CLmax
