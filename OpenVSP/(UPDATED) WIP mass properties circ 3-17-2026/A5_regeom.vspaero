@@ -1,0 +1,70 @@
+Sref = 374.999507 
+Cref = 11.116668 
+Bref = 36.316668 
+X_cg = 24.087949 
+Y_cg = 0.003465 
+Z_cg = 0.006819 
+Mach = 0.000000 
+AoA = 1.000000 
+Beta = 0.000000 
+ReCref = 10000000.000000 
+Vinf = 1989.093400 
+Rho = 0.000891 
+StallModel = 0 
+Clo2D = 0.000000 
+CLMax2D = 1.000000 
+Symmetry = 0 
+FreezeMultiPoleAtIteration = 10000 
+FreezeWakeAtIteration = 10000 
+FreezeWakeRootVortices = 0 
+ImplicitWake = 0 
+ImplicitWakeStartIteration = 0 
+FarDist = -1.000000 
+NumWakeNodes = 8 
+WakeIters = 8 
+WakeRelax = 1.000000 
+ForwardGMRESConvergenceFactor = 1.000000 
+AdjointGMRESConvergenceFactor = 1.000000 
+NonLinearConvergenceFactor = 1.000000 
+CoreSizeFactor = 1.000000 
+FarAway = 5.000000 
+UpdateMatrixPreconditioner = 0 
+UseWakeNodeMatrixPreconditioner = 0 
+Write2DFEMFile = 0 
+WriteTecplotFile = 0 
+NumberOfControlGroups = 7 
+Ailerons
+Main_Wing_Surf0_Ailerons,Main_Wing_Surf1_Ailerons
+1, 1
+0
+Flaperons
+Main_Wing_Surf0_Flaperons,Main_Wing_Surf1_Flaperons
+1, 1
+0
+Inboard_Flaps
+Main_Wing_Surf0_Inboard_flaps,Main_Wing_Surf1_Inboard_flaps
+1, 1
+0
+Inboard_Elevators
+HStab_Surf0_Inboard_Elevators,HStab_Surf1_Inboard_Elevators
+1, 1
+0
+Outboard_Elevators
+HStab_Surf0_Outboard_Elevators,HStab_Surf1_Outboard_Elevators
+1, 1
+0
+Lower_Rudder
+VStab_Surf0_Lower_Rudder
+1
+0
+Upper_Rudder
+VStab_Surf0_Upper_Rudder
+1
+0
+NumberofSurveyPoints = 0 
+QuadTreeBufferLevels = 0 
+NumberOfQuadTrees = 1 
+1 2 0.000000 
+NumberOfInlets = 0 
+NumberOfNozzles = 0 
+VSP_StabilityType = 1 
