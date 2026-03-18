@@ -131,17 +131,17 @@
         <ViewType Value="3.000000000000000000e+00" ID="RWNOODMHTCK"/>
       </SVGSettings>
       <AdjustView>
-        <CORX Value="-0.000000000000000000e+00" ID="LKCSBDBDYYG"/>
-        <CORY Value="-0.000000000000000000e+00" ID="NJLNEKOBIZO"/>
-        <CORZ Value="-0.000000000000000000e+00" ID="PVOLNLDATGU"/>
-        <PanX Value="-2.009012413024902344e+01" ID="XVNRXPNXTCO"/>
-        <PanY Value="-1.159228038787841797e+01" ID="DKDSXFWXBZT"/>
+        <CORX Value="2.372542762756347656e+01" ID="LKCSBDBDYYG"/>
+        <CORY Value="0.000000000000000000e+00" ID="NJLNEKOBIZO"/>
+        <CORZ Value="2.513730287551879883e+00" ID="PVOLNLDATGU"/>
+        <PanX Value="0.000000000000000000e+00" ID="XVNRXPNXTCO"/>
+        <PanY Value="0.000000000000000000e+00" ID="DKDSXFWXBZT"/>
         <RotationX Value="3.526438962818089351e+01" ID="JJDEUEXVLPN"/>
         <RotationY Value="-4.500000125223908043e+01" ID="VQXDQMXUHXT"/>
         <RotationZ Value="-6.000000166965211434e+01" ID="OGWTBQBXUJY"/>
         <ViewportX Value="7.880000000000000000e+02" ID="MYQFAPHYNVJ"/>
         <ViewportY Value="8.900000000000000000e+02" ID="GELLUQVQLKH"/>
-        <Zoom Value="6.239967048168182373e-02" ID="DFFXRFPEABN"/>
+        <Zoom Value="8.252355456352233887e-02" ID="DFFXRFPEABN"/>
       </AdjustView>
       <Design>
         <Working_XDDM_Type Value="0.000000000000000000e+00" ID="NAEEGWSWYRD"/>
@@ -1237,14 +1237,14 @@
                 <ProjectedSpan Value="1.200132975713765049e+01" ID="SASULXPMSDF"/>
                 <Root_Chord Value="1.111667731305654705e+01" ID="CJOKDGMGUHJ"/>
                 <RotateMatchDideralFlag Value="0.000000000000000000e+00" ID="PUKGEOIOJKC"/>
-                <Sec_Sweep Value="1.622729506828747148e+01" ID="HKNFKSOOTPB"/>
+                <Sec_Sweep Value="1.622729506828746793e+01" ID="HKNFKSOOTPB"/>
                 <Sec_Sweep_Location Value="1.000000000000000000e+00" ID="UXJKYCOHBSD"/>
                 <SectTess_U Value="6.000000000000000000e+00" ID="ZXJTEXWBPKZ"/>
                 <Span Value="1.200315789622384521e+01" ID="MDNNUQIDOFV"/>
                 <Sweep Value="3.500000000000000000e+01" ID="IGMUGXAUURX"/>
                 <Sweep_Location Value="0.000000000000000000e+00" ID="VRWPBKKYQBH"/>
                 <Taper Value="5.582078985883365263e-01" ID="BEHGPSHKNVR"/>
-                <Tip_Chord Value="6.205417082205929802e+00" ID="WKJGXIOZQHA"/>
+                <Tip_Chord Value="6.205417082205928914e+00" ID="WKJGXIOZQHA"/>
                 <Twist Value="-1.333333333333333259e+00" ID="OPRYPTHTELF"/>
                 <Twist_Location Value="2.500000000000000000e-01" ID="VCBDGVUIWGI"/>
               </XSec>
@@ -1282,11 +1282,11 @@
                     <TE_Cap_Type Value="1.000000000000000000e+00" ID="TYIBXLLJKXX"/>
                   </Cap>
                   <XSecCurve>
-                    <Area Value="2.614084969168306571e+00" ID="CJSWNCYLZDA"/>
+                    <Area Value="2.614084969168308348e+00" ID="CJSWNCYLZDA"/>
                     <Camber Value="0.000000000000000000e+00" ID="IKZOYSZZCJP"/>
                     <CamberInputFlag Value="0.000000000000000000e+00" ID="YWLTQTVNLVK"/>
                     <CamberLoc Value="2.000000000000000111e-01" ID="JMZUNHLVZSE"/>
-                    <Chord Value="6.205417082205929802e+00" ID="CXAADXURKTY"/>
+                    <Chord Value="6.205417082205928914e+00" ID="CXAADXURKTY"/>
                     <DeltaX Value="0.000000000000000000e+00" ID="UPBQGRAHEIL"/>
                     <DeltaY Value="0.000000000000000000e+00" ID="AGRCLTMFFNN"/>
                     <FitDegree Value="7.000000000000000000e+00" ID="JWHZPWLAKCC"/>
@@ -5678,7 +5678,7 @@
         <Num_of_Tex>0</Num_of_Tex>
       </Textures>
       <Geom>
-        <Set_List>1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, </Set_List>
+        <Set_List>1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, </Set_List>
         <SubSurfaces/>
         <FeaStructures/>
       </Geom>
@@ -6746,7 +6746,7 @@
         <Num_of_Tex>0</Num_of_Tex>
       </Textures>
       <Geom>
-        <Set_List>1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, </Set_List>
+        <Set_List>1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, </Set_List>
         <SubSurfaces/>
         <FeaStructures/>
       </Geom>
@@ -7814,7 +7814,7 @@
         <Num_of_Tex>0</Num_of_Tex>
       </Textures>
       <Geom>
-        <Set_List>1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, </Set_List>
+        <Set_List>1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, </Set_List>
         <SubSurfaces/>
         <FeaStructures/>
       </Geom>
@@ -8882,7 +8882,7 @@
         <Num_of_Tex>0</Num_of_Tex>
       </Textures>
       <Geom>
-        <Set_List>1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, </Set_List>
+        <Set_List>1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, </Set_List>
         <SubSurfaces/>
         <FeaStructures/>
       </Geom>
@@ -37572,6 +37572,14 @@ void Scale(double curr_scale )
       <Specular>0.000000000000000000e+00, 0.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00, </Specular>
       <Emissive>0.000000000000000000e+00, 0.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00, </Emissive>
       <Shininess>1.280000000000000000e+02</Shininess>
+    </Material>
+    <Material>
+      <Name>Display Engine</Name>
+      <Ambient>1.176470588235294101e-01, 1.960784313725490169e-02, 1.960784313725490169e-02, 1.000000000000000000e+00, </Ambient>
+      <Diffuse>1.000000000000000021e-02, 1.000000000000000021e-02, 1.000000000000000021e-02, 1.000000000000000000e+00, </Diffuse>
+      <Specular>4.000000000000000222e-01, 4.000000000000000222e-01, 4.000000000000000222e-01, 1.000000000000000000e+00, </Specular>
+      <Emissive>0.000000000000000000e+00, 0.000000000000000000e+00, 0.000000000000000000e+00, 1.000000000000000000e+00, </Emissive>
+      <Shininess>1.000000000000000000e+01</Shininess>
     </Material>
   </Materials>
   <UserParmContainer>

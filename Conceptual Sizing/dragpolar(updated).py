@@ -32,9 +32,9 @@ CLmax_landing = 2.3
 configs = np.array([
     "Clean",
     "Takeoff flaps",
-    "Takeoff flaps",
+    "Takeoff flaps + Gear",
     "Landing flaps",
-    "Landing flaps"
+    "Landing flaps + Gear"
 ])
 
 dCD0_flaps = np.array([
@@ -89,11 +89,15 @@ print("\n=== Final CD0 per configuration (Clean + ΔCD0) ===")
 print(config_df[["config", "CD0_config", "dCD0_flaps", "dCD0_gear", "e", "k"]].to_string(index=False))
 
  
+<<<<<<< HEAD
 # drag polar plot 
 plt.rcParams.update({
     "font.family": "serif",
     "font.serif": "Times New Roman",
     })
+=======
+#drag polar plot
+>>>>>>> e2584facec732a43810916cdab5f708740a30638
 
 plt.figure(facecolor="white", figsize=(16,9))
 
