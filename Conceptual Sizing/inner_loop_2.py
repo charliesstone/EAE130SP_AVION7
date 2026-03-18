@@ -129,7 +129,7 @@ def loop(T_guess, S_guess, W0_guess):
         W_all_else = 0.17 * W0_guess
 
         W_empty = W_wing + W_ht + W_vt + W_fuselage + W_landing_gear + W_engines + W_all_else
-        print(W_empty)
+        # print(W_empty)
         # # # # # # # #
         # Drag polar
         # # # # # # # #
