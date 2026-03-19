@@ -100,6 +100,8 @@ def loop(T_guess, S_guess, W0_guess):
         W_payload = W_strike
     elif W_A2A > W_strike: # <--------- using the heavier loadout weight for analysis
         W_payload = W_A2A
+    else:                  # ADDED: safe tie case so W_payload is always defined
+        W_payload = W_strike
 
     S_ht = 140.25339        # horizontal tail area (from current openvsp model as of 3/6/26)
     S_vt = 140.64069        # vertical tail area (from current openvsp model as of 3/6/26)
@@ -127,7 +129,7 @@ def loop(T_guess, S_guess, W0_guess):
         W_all_else = 0.17 * W0_guess
 
         W_empty = W_wing + W_ht + W_vt + W_fuselage + W_landing_gear + W_engines + W_all_else
-
+        # print(W_empty)
         # # # # # # # #
         # Drag polar
         # # # # # # # #
@@ -154,9 +156,10 @@ def loop(T_guess, S_guess, W0_guess):
 
         W0_guess = W0_new
         iterations += 1
-        if iterations == max_iter:
-            print(f"Warning: W0 did not converge for S={S_guess}, T={T_guess}")
-            W0_guess = np.nan
+
+    if iterations == max_iter and residual > eps:  # ADJUSTED: move non-convergence check outside the loop so it actually executes
+        print(f"Warning: W0 did not converge for S={S_guess}, T={T_guess}")
+        W0_guess = np.nan
 
     return W0_guess, iterations
 
@@ -177,3 +180,15 @@ W0_F18EF = 47000     # actual TOGW of super hornet
 W0, it = loop(T_guess, S_guess, W0_guess)
 W0_diff = np.abs(W0  - W0_F18EF)/W0_F18EF * 100
 print(f"Compared to the Super Hornet's TOGW of {W0_F18EF}, the inner loop gives a value of {W0} after {it} iterations, which is {np.round(W0_diff, 1)}% inaccurate")
+
+#running a test here to obtain TOGW for chosen design point of YF-52 Coyote:
+T0_coyote = 22000
+numengines_coyote = 1
+T_guess = T0_coyote * numengines_coyote #thrust guess inputted
+S_guess = 400        # actual wing ref area of super hornet
+W0_guess = 35000     # initial TOGW guess
+
+
+W0, it = loop(T_guess, S_guess, W0_guess)
+W0_diff = np.abs(W0  - W0_F18EF)/W0_F18EF * 100
+print(f"Coyote weight {W0} obtained after {it} iterations")

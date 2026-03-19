@@ -32,9 +32,9 @@ CLmax_landing = 2.3
 configs = np.array([
     "Clean",
     "Takeoff flaps",
-    "Takeoff flaps",
+    "Takeoff flaps + Gear",
     "Landing flaps",
-    "Landing flaps"
+    "Landing flaps + Gear"
 ])
 
 dCD0_flaps = np.array([
@@ -90,22 +90,41 @@ print(config_df[["config", "CD0_config", "dCD0_flaps", "dCD0_gear", "e", "k"]].t
 
  
 # drag polar plot 
- 
-plt.figure()
+# plt.rcParams.update({
+#     "font.family": "serif",
+#     "font.serif": "Times New Roman",
+#     })
+
+plt.figure(facecolor="white", figsize=(16,9))
+
+CLmax_L = 2.8
+CLmax_C = 1.6
+CLmax_T = 2.2
+
+cl_limits = {
+    "Clean": CLmax_C,
+    "Takeoff flaps": CLmax_T,
+    "Takeoff flaps + Gear": CLmax_T,
+    "Landing flaps": CLmax_L,
+    "Landing flaps + Gear": CLmax_L
+}
+
 
 for _, row in config_df.iterrows():
-    CL = np.linspace(-3.0, row["CL_max"], 900)  # CL from -4 to CLmax
-    CD = row["CD0_config"] + row["k"] * (CL**2) 
-    plt.plot(CD, CL, linewidth=1, label=row["config"])
+    CL = np.linspace(-3.0, row["CL_max"], 900)
+    CD = row["CD0_config"] + row["k"] * (CL**2)
+    
+    cl_max = cl_limits[row["config"]]
+    cl_min = -cl_max
+    mask = (CL <= cl_max) & (CL >= cl_min)
+    
+    plt.plot(CD[mask], CL[mask], linewidth=2, label=row["config"])
 
-
-plt.xlabel("C_D")
-plt.ylabel("C_L")
-plt.xlim(0, 0.30)
-plt.xticks([0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30])
-plt.ylim(-1.5, 1.5)
+plt.xlabel("$C_D$")
+plt.ylabel("$C_L$")
+# plt.xlim(0, 0.25)
+# plt.ylim(-1.1, 1.1)
 plt.title("Drag Polar")
-plt.grid(True)
 plt.legend()
 plt.show()
 

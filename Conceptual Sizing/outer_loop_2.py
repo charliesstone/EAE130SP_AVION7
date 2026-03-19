@@ -30,10 +30,11 @@ def loop_TW(S_grid, W0_guess, T_guess):
     W_grid = {name: [] for name in constraints}
     iterations_grid = []
     weight_iterations_grid = []
+    max_iter = 200  # ADDED: safety cap so bad guesses cannot loop forever
 
     for S_wing in S_grid:   #for loop to sweep across all S_grid values
 
-        eps = 1e-6
+        eps = 1e-3          # ADJUSTED: use relative convergence tolerance consistent with Algorithm 4
         residual_T = []
         iterations = 0
         #assigning the initial T_guess to all constraints
@@ -48,7 +49,7 @@ def loop_TW(S_grid, W0_guess, T_guess):
                 "load_idl": T_guess
             }
         
-        while len(residual_T) == 0 or max(residual_T) > eps:
+        while (len(residual_T) == 0 or max(residual_T) > eps) and iterations < max_iter:
 
             residual_T = []
             #calculating a gross weight for each thrust from each constraint:
@@ -118,7 +119,7 @@ def loop_TW(S_grid, W0_guess, T_guess):
             #calculating residuals for each constraint:
             #region residual
             for name in T_new_dict:
-                res_T = np.abs(T_new_dict[name] - T_guess_dict[name])
+                res_T = np.abs(T_new_dict[name] - T_guess_dict[name]) / max(np.abs(T_new_dict[name]), 1e-9)  # ADJUSTED: relative residual for realistic convergence
                 residual_T.append(res_T)
                 T_guess_dict[name] = T_new_dict[name]
             iterations += 1
@@ -155,10 +156,11 @@ def loop_WS(T_grid, W0_guess, S_guess):
     W_grid = {name: [] for name in constraints}
     iterations_grid = []
     weight_iterations_grid = []
+    max_iter = 200  # ADDED: safety cap so bad guesses cannot loop forever
 
     for T0 in T_grid:   #for loop to sweep across all S_grid values
 
-        eps = 1e-6
+        eps = 1e-3      # ADJUSTED: use relative convergence tolerance consistent with Algorithm 5
         residual_S = []
         iterations = 0
         #assigning the initial S_guess to all constraints
@@ -168,7 +170,7 @@ def loop_WS(T_grid, W0_guess, S_guess):
             "catapult takeoff": S_guess,
         }
 
-        while len(residual_S) == 0 or max(residual_S) > eps:
+        while (len(residual_S) == 0 or max(residual_S) > eps) and iterations < max_iter:
 
                 residual_S = []
                 #calculating a gross weight for each thrust from each constraint:
@@ -179,6 +181,7 @@ def loop_WS(T_grid, W0_guess, S_guess):
                     TOGW[name], weightiter = inner.loop(T0, S_guess_dict[name], W0_guess)
                     weight_iterations_grid.append(weightiter)
                     # print(TOGW, f"max iterations for TOGW is {np.max(np.array(weight_iterations_grid))}")
+
                 #a required minimum W/S (wing loading) given each requirement that is a constant WS value is catalogued here:
                 #region TWs
 
@@ -192,10 +195,9 @@ def loop_WS(T_grid, W0_guess, S_guess):
                 WS_req_cat = con.takeoffWS
 
                 #calculating new wing area given requirements:
-
-                S_new_landingstall = (WSreq_landingstall)**(-1) * TOGW[name]
-                S_new_takeoffstall = (WSreq_takeoffstall)**(-1) * TOGW[name]
-                S_new_cat = (WS_req_cat)**(-1) * TOGW[name]
+                S_new_landingstall = TOGW["landing stall"] / WSreq_landingstall   # ADJUSTED: use matching TOGW entry instead of leaked loop variable "name"
+                S_new_takeoffstall = TOGW["takeoff stall"] / WSreq_takeoffstall   # ADJUSTED: use matching TOGW entry instead of leaked loop variable "name"
+                S_new_cat = TOGW["catapult takeoff"] / WS_req_cat                 # ADJUSTED: use matching TOGW entry instead of leaked loop variable "name"
 
                 #storing these S_new in a dict:
                 S_new_dict = {
@@ -205,10 +207,10 @@ def loop_WS(T_grid, W0_guess, S_guess):
                 }
 
                 for name in S_new_dict:
-                    res_S = np.abs(S_new_dict[name] - S_guess_dict[name])
+                    res_S = np.abs(S_new_dict[name] - S_guess_dict[name]) / max(np.abs(S_new_dict[name]), 1e-9)  # ADJUSTED: relative residual for realistic convergence
                     residual_S.append(res_S)
                     S_guess_dict[name] = S_new_dict[name]
-                    iterations += 1
+                iterations += 1  # ADJUSTED: count one outer-loop update per simultaneous pass
         for name in S_grid:
             S_grid[name].append(S_guess_dict[name])
         for name in W_grid:
@@ -216,9 +218,3 @@ def loop_WS(T_grid, W0_guess, S_guess):
         iterations_grid.append(iterations)
         
     return S_grid, W_grid
-
-
-                    
-
-
-

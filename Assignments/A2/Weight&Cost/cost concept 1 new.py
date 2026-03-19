@@ -14,8 +14,8 @@ import math
 # -----------------------------
 # 0) Known / assumptions
 # -----------------------------
-We = 32948.0          # [lb] empty weight from your weight code
-M_max = 1.6           # engine max Mach number (use aircraft max Mach if that’s your assumption)
+We = 21284.324910270156          # [lb] empty weight from your weight code
+M_max = 2.0           # engine max Mach number (use aircraft max Mach if that’s your assumption)
 V_max_kt = 942.9      # [kt] 
 
 Q_total = 500         # total production quantity
@@ -24,7 +24,7 @@ Q = min(Q_total, Q_5yr)
 FTA = 5               # flight-test aircraft (typical 2–6)
 N_engines_per_aircraft = 2
 
-T_max_lbf = 26950.0         # [lbf] engine maximum thrust 
+T_max_lbf = 33500         # [lbf] engine maximum thrust 
 T_turbine_inlet_degR = 3500.0  # [degR] turbine inlet temp 
 
 # Avionics cost term (Eq 18.9). This is NOT avionics weight.
