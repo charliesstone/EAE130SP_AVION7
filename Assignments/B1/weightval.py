@@ -42,7 +42,7 @@ S_csw = 105.33          # ft^2
 # Engine / crew
 N_en = 1.0
 N_c = 2.0
-L_ec = 12.45            # ft, x eng-x pilot 
+L_ec = 15.45            # ft, x eng-x pilot 
 N_s = 4.0               # assumed flight-control systems
 
 
