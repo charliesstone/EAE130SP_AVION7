@@ -29,7 +29,7 @@ L_t = 12.408            # ft -xvt-xwing
 K_rht = 1.0            
 
 # Rudder
-Sr_over_Svt = 0.172
+Sr_over_Svt = 0.045
 S_r = Sr_over_Svt * S_vt
 
 # Control surfaces
