@@ -18,14 +18,14 @@ F_w = 5.0               # ft
 # Vertical tail
 S_vt = 281.28           # ft^2
 A_vt = 2.627
-lambda_vt = 0.5066
+lambda_vt = 0.238
 Lambda_vt_deg = 52.0
 Lambda_vt_rad = math.radians(Lambda_vt_deg)
 t_c_root = 0.10        
 
 # Tail config
 H_t_over_H_v = 0.0      # not T-tail
-L_t = 12.305            # ft
+L_t = 12.408            # ft -xvt-xwing
 K_rht = 1.0            
 
 # Rudder
