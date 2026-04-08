@@ -62,9 +62,12 @@ W_final_climb,x_climb = climb_fuel_x(W0, h_start, h_end, N, ct, V, Cd0, k, S, rh
 
 fuel_climb = W0 - W_final_climb
 
+Fuel_Fraction_Climb = W_final_climb/W0
+
 print("Final Weight [lb]:", W_final_climb)
 print("Fuel Burned in Climb [lb]:", fuel_climb)
 print("Horizontal Climb Distance [nm]:", x_climb/6076)
+print("Climb Fuel Weight Fraction W_final/W0:",Fuel_Fraction_Climb)
 
 #CRUISE REGION 
 
