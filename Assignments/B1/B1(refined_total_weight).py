@@ -190,19 +190,20 @@ W_fixed = (
     +W_furnishings
 )
 
-
 # TOGW SOLVER WITH FUEL = 30% OF TOGW
 # TOGW = (fixed + LG + crew + payload) / 0.70
 
 def solve_togw(W_fixed, W_landing_gear, W_crew, W_payload):
     return (W_fixed + W_landing_gear + W_crew + W_payload) 
 
-W_TOGW_A2A = solve_togw(W_fixed, W_landing_gear, W_crew, W_payload_A2A) + 16500.0  # lb, from cruise fuel fraction method, to be replaced with actual fuel fraction method
-W_TOGW_strike = solve_togw(W_fixed, W_landing_gear, W_crew, W_payload_strike) + 13000.0  # lb, from cruise fuel fraction method, to be replaced with actual fuel fraction method
-
-W_fuel_A2A = 16500.0  # lb, from cruise fuel fraction method, to be replaced with actual fuel fraction method
-W_fuel_strike = 13000.0  # lb, from cruise fuel fraction method, to be replaced with actual fuel fraction method
+W_fuel_A2A = 14823  # lb, from cruise fuel fraction method, to be replaced with actual fuel fraction method
+W_fuel_strike = 17090.0   # lb, from cruise fuel fraction method, to be replaced with actual fuel fraction method
 # 
+
+W_TOGW_A2A = solve_togw(W_fixed, W_landing_gear, W_crew, W_payload_A2A) +  W_fuel_A2A # lb, from cruise fuel fraction method, to be replaced with actual fuel fraction method
+W_TOGW_strike = solve_togw(W_fixed, W_landing_gear, W_crew, W_payload_strike) + W_fuel_strike # lb, from cruise fuel fraction method, to be replaced with actual fuel fraction method
+
+
 # Results printout
 
 print("COMPONENT WEIGHTS: -------------------")
