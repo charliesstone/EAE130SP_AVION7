@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 # ============================================================
 # Flight Performance Envelope: 4 Cases
 # A2A Max, A2A Min, Strike Max, Strike Min
-# Dynamic pressure limits lower-right, max speed/Mach limits upper-right
 # ============================================================
 
 S = 400.0
@@ -97,14 +96,33 @@ def make_envelope(case_name, W, CD0_clean):
     thrust_low_boundary = np.array(thrust_low_boundary)
     thrust_high_boundary = np.array(thrust_high_boundary)
 
-    # Max speed/Mach boundary controls upper-right
     max_speed_boundary = np.minimum(thrust_high_boundary, mach_boundary)
-
-    # Dynamic pressure controls lower-right where it is more restrictive
     right_boundary = np.minimum(q_boundary, max_speed_boundary)
-
-    # Left side
     left_boundary = np.maximum(stall_boundary, thrust_low_boundary)
+
+    ceiling_alt = valid_altitudes[-1]
+
+    rho_30k, a_30k = atmosphere(30000)
+    sigma_30k = rho_30k / rho0
+    V_stall_30k = V_stall_EAS / np.sqrt(sigma_30k)
+    V_mach_30k = M_max * a_30k
+    V_q_30k = np.sqrt(2 * q_max / rho_30k)
+
+    # PRINTS FIRST
+    print(f"\nKey Envelope Values - {case_name}")
+    print("-------------------")
+    print(f"W = {W:.2f} lb")
+    print(f"S = {S:.1f} ft^2")
+    print(f"CD0 = {CD0_clean:.4f}")
+    print(f"k = {k:.5f}")
+    print(f"T_SL = {T_SL:.0f} lbf")
+    print(f"M_max = {M_max:.1f}")
+    print(f"q_max = {q_max:.1f} lb/ft^2")
+    print(f"Sea-level stall speed = {V_stall_EAS:.1f} ft/s EAS")
+    print(f"30,000 ft stall speed = {V_stall_30k:.1f} ft/s TAS")
+    print(f"30,000 ft Mach 1.6 speed = {V_mach_30k:.1f} ft/s")
+    print(f"30,000 ft dynamic pressure speed limit = {V_q_30k:.1f} ft/s")
+    print(f"Estimated ceiling boundary = {ceiling_alt:.0f} ft")
 
     plt.figure(figsize=(11, 7))
 
@@ -121,37 +139,27 @@ def make_envelope(case_name, W, CD0_clean):
     plt.plot(stall_boundary, valid_altitudes, color="blue", linewidth=3,
              label="Stall Boundary", zorder=7)
 
-    plt.plot(mach_boundary, valid_altitudes, color="orange", linestyle="--",
-             linewidth=3, label="Mach 1.6 Boundary", zorder=5)
-
     plt.plot(q_boundary, valid_altitudes, color="brown", linestyle="-.",
              linewidth=3, label="Dynamic Pressure Limit", zorder=6)
 
-    plt.plot(max_speed_boundary, valid_altitudes, color="green", linewidth=3,
+    plt.plot(max_speed_boundary, valid_altitudes, color="green", linewidth=2,
              label="Max Speed Boundary", zorder=8)
 
     plt.plot(thrust_low_boundary, valid_altitudes, color="deeppink",
              linestyle="--", linewidth=3, alpha=0.75,
              label="Low-Speed Thrust Boundary", zorder=9)
 
-    ceiling_alt = valid_altitudes[-1]
-    plt.plot(
-        [left_boundary[-1], right_boundary[-1]],
-        [ceiling_alt, ceiling_alt],
-        color="black",
-        linewidth=3.5,
-        label="Ceiling Boundary",
-        zorder=10
-    )
+    plt.plot(mach_boundary, valid_altitudes, color="orange",
+             linestyle="--", linewidth=3.5,
+             label="Mach 1.6 Boundary", zorder=15)
 
-    plt.axhline(
-        30000,
-        color="purple",
-        linestyle=":",
-        linewidth=3,
-        label="30,000 ft Mission Altitude",
-        zorder=4
-    )
+    plt.plot([left_boundary[-1], right_boundary[-1]],
+             [ceiling_alt, ceiling_alt],
+             color="black", linewidth=3.5,
+             label="Ceiling Boundary", zorder=10)
+
+    plt.axhline(30000, color="black", linestyle=":",
+                linewidth=3, label="30,000 ft Mission Altitude", zorder=4)
 
     plt.xlabel("True Airspeed, V (ft/s)")
     plt.ylabel("Altitude (ft)")
@@ -162,27 +170,6 @@ def make_envelope(case_name, W, CD0_clean):
     plt.ylim(0, 62000)
     plt.tight_layout()
     plt.show()
-
-    rho_30k, a_30k = atmosphere(30000)
-    sigma_30k = rho_30k / rho0
-    V_stall_30k = V_stall_EAS / np.sqrt(sigma_30k)
-    V_mach_30k = M_max * a_30k
-    V_q_30k = np.sqrt(2 * q_max / rho_30k)
-
-    print(f"\nKey Envelope Values - {case_name}")
-    print("-------------------")
-    print(f"W = {W:.2f} lb")
-    print(f"S = {S:.1f} ft^2")
-    print(f"CD0 = {CD0_clean:.4f}")
-    print(f"k = {k:.5f}")
-    print(f"T_SL = {T_SL:.0f} lbf")
-    print(f"M_max = {M_max:.1f}")
-    print(f"q_max = {q_max:.1f} lb/ft^2")
-    print(f"Sea-level stall speed = {V_stall_EAS:.1f} ft/s EAS")
-    print(f"30,000 ft stall speed = {V_stall_30k:.1f} ft/s TAS")
-    print(f"30,000 ft Mach 1.6 speed = {V_mach_30k:.1f} ft/s")
-    print(f"30,000 ft dynamic pressure speed limit = {V_q_30k:.1f} ft/s")
-    print(f"Estimated ceiling boundary = {ceiling_alt:.0f} ft")
 
 for case_name, data in cases.items():
     make_envelope(case_name, data["W"], data["CD0"])
