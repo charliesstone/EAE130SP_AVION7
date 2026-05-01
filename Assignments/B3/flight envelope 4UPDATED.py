@@ -12,7 +12,6 @@ e = 0.825
 k = 1 / (np.pi * e * AR)
 
 T_SL = 40000.0
-M_max = 1.6
 q_max = 800.0
 
 V_stall_EAS_ref = 254.0
@@ -25,10 +24,10 @@ T0 = 518.67
 lapse = 0.00356616
 
 cases = {
-    "A2A Max": {"W": 33953.47, "CD0": 0.0144},
-    "A2A Min": {"W": 22404.03, "CD0": 0.0144},
-    "Strike Max": {"W": 36706.33, "CD0": 0.0137},
-    "Strike Min": {"W": 22489.32, "CD0": 0.0137},
+    "A2A Max": {"W": 33953.47, "CD0": 0.0144, "M_max": 0.9},
+    "A2A Min": {"W": 22404.03, "CD0": 0.0144, "M_max": 0.9},
+    "Strike Max": {"W": 36706.33, "CD0": 0.0137, "M_max": 1.6},
+    "Strike Min": {"W": 22489.32, "CD0": 0.0137, "M_max": 1.6},
 }
 
 def atmosphere(h_ft):
@@ -43,7 +42,7 @@ def atmosphere(h_ft):
     a = np.sqrt(gamma * R * T)
     return rho, a
 
-def make_envelope(case_name, W, CD0_clean):
+def make_envelope(case_name, W, CD0_clean, M_max):
 
     altitudes = np.linspace(0, 60000, 500)
     V_grid = np.linspace(100, 1900, 2500)
@@ -108,7 +107,6 @@ def make_envelope(case_name, W, CD0_clean):
     V_mach_30k = M_max * a_30k
     V_q_30k = np.sqrt(2 * q_max / rho_30k)
 
-    # PRINTS FIRST
     print(f"\nKey Envelope Values - {case_name}")
     print("-------------------")
     print(f"W = {W:.2f} lb")
@@ -120,7 +118,7 @@ def make_envelope(case_name, W, CD0_clean):
     print(f"q_max = {q_max:.1f} lb/ft^2")
     print(f"Sea-level stall speed = {V_stall_EAS:.1f} ft/s EAS")
     print(f"30,000 ft stall speed = {V_stall_30k:.1f} ft/s TAS")
-    print(f"30,000 ft Mach 1.6 speed = {V_mach_30k:.1f} ft/s")
+    print(f"30,000 ft Mach {M_max:.1f} speed = {V_mach_30k:.1f} ft/s")
     print(f"30,000 ft dynamic pressure speed limit = {V_q_30k:.1f} ft/s")
     print(f"Estimated ceiling boundary = {ceiling_alt:.0f} ft")
 
@@ -142,8 +140,8 @@ def make_envelope(case_name, W, CD0_clean):
     plt.plot(q_boundary, valid_altitudes, color="brown", linestyle="-.",
              linewidth=3, label="Dynamic Pressure Limit", zorder=6)
 
-    plt.plot(max_speed_boundary, valid_altitudes, color="green", linewidth=2,
-             label="Max Speed Boundary", zorder=8)
+    plt.plot(max_speed_boundary, valid_altitudes, color="green",
+             linewidth=2, label="Max Speed Boundary", zorder=8)
 
     plt.plot(thrust_low_boundary, valid_altitudes, color="deeppink",
              linestyle="--", linewidth=3, alpha=0.75,
@@ -151,7 +149,7 @@ def make_envelope(case_name, W, CD0_clean):
 
     plt.plot(mach_boundary, valid_altitudes, color="orange",
              linestyle="--", linewidth=3.5,
-             label="Mach 1.6 Boundary", zorder=15)
+             label=f"Mach {M_max:.1f} Boundary", zorder=15)
 
     plt.plot([left_boundary[-1], right_boundary[-1]],
              [ceiling_alt, ceiling_alt],
@@ -172,4 +170,4 @@ def make_envelope(case_name, W, CD0_clean):
     plt.show()
 
 for case_name, data in cases.items():
-    make_envelope(case_name, data["W"], data["CD0"])
+    make_envelope(case_name, data["W"], data["CD0"], data["M_max"])
